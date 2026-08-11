@@ -1,56 +1,25 @@
-@extends('layouts.app')
+@extends('layouts.admin')
 
-@section('title','Modifier un client')
+@section('title', 'Modifier un client')
 
 @section('content')
 
-<div class="container-fluid">
-
-    <div class="row">
-
-        <div class="col-12">
-
-            <div class="card shadow-sm">
-
-                <div class="card-header d-flex justify-content-between align-items-center">
-
-                    <h4 class="mb-0">
-
-                        Modifier le client
-
-                    </h4>
-
-                    <a href="{{ route('clients.index') }}"
-                       class="btn btn-secondary">
-
-                        Retour
-
-                    </a>
-
-                </div>
-
-                <div class="card-body">
-
-                    <form
-                        action="{{ route('clients.update',$client) }}"
-                        method="POST">
-
-                        @csrf
-
-                        @method('PUT')
-
-                        @include('clients._form')
-
-                    </form>
-
-                </div>
-
-            </div>
-
-        </div>
-
+<div class="page-head">
+    <div>
+        <h2>Modifier le client</h2>
+        <p>{{ $client->prenom }} {{ $client->nom }}</p>
     </div>
+    <a href="{{ route('clients.index') }}" class="btn-soft"><i class="bi bi-arrow-left"></i> Retour</a>
+</div>
 
+@include('components.alerts.errors')
+
+<div class="form-card">
+    <form action="{{ route('clients.update', $client) }}" method="POST">
+        @csrf
+        @method('PUT')
+        @include('clients._form')
+    </form>
 </div>
 
 @endsection

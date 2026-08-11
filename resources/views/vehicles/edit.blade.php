@@ -1,39 +1,25 @@
-@extends('layouts.app')
+@extends('layouts.admin')
 
-@section('title','Modifier un véhicule')
+@section('title', 'Modifier un véhicule')
 
 @section('content')
 
-<div class="container-fluid">
-
-    @include('components.alerts.errors')
-
-    <div class="card shadow">
-
-        <div class="card-header">
-
-            <h4>Modifier le véhicule</h4>
-
-        </div>
-
-        <div class="card-body">
-
-            <form
-                action="{{ route('vehicles.update',$vehicle) }}"
-                method="POST">
-
-                @csrf
-
-                @method('PUT')
-
-                @include('vehicles._form')
-
-            </form>
-
-        </div>
-
+<div class="page-head">
+    <div>
+        <h2>Modifier le véhicule</h2>
+        <p>{{ $vehicle->marque }} {{ $vehicle->modele }} · {{ $vehicle->immatriculation }}</p>
     </div>
+    <a href="{{ route('vehicles.index') }}" class="btn-soft"><i class="bi bi-arrow-left"></i> Retour</a>
+</div>
 
+@include('components.alerts.errors')
+
+<div class="form-card">
+    <form action="{{ route('vehicles.update', $vehicle) }}" method="POST">
+        @csrf
+        @method('PUT')
+        @include('vehicles._form')
+    </form>
 </div>
 
 @endsection

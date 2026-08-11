@@ -1,41 +1,13 @@
 @props(['vehicle'])
 
-@php
-
-$status = $vehicle->oil_change_status;
-
-@endphp
+@php $status = $vehicle->oil_change_status; @endphp
 
 @if($status == 'danger')
-
-<span class="badge bg-danger">
-
-    Vidange urgente
-
-</span>
-
+    <span class="pill danger">Vidange urgente</span>
 @elseif($status == 'warning')
-
-<span class="badge bg-warning text-dark">
-
-    Vidange bientôt
-
-</span>
-
+    <span class="pill warning">Vidange bientôt</span>
 @elseif($status == 'success')
-
-<span class="badge bg-success">
-
-    Vidange OK
-
-</span>
-
+    <span class="pill success">Vidange OK</span>
 @else
-
-<span class="badge bg-secondary">
-
-    Non définie
-
-</span>
-
+    <span class="pill secondary">Non définie</span>
 @endif
