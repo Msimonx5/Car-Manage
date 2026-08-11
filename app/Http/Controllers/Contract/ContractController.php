@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Contract;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Contract\StoreContractRequest;
 use App\Http\Requests\Contract\UpdateContractRequest;
+use App\Enums\ContractStatus;
+use App\Enums\VehicleStatus;
 use App\Models\Client;
 use App\Models\Contract;
 use App\Models\Vehicle;
@@ -20,6 +22,8 @@ class ContractController extends Controller
      */
 public function index(Request $request): View
 {
+    Contract::releaseExpired();
+
     $query = Contract::query()
         ->with([
             'client:id,nom,prenom',
@@ -101,6 +105,8 @@ public function index(Request $request): View
      */
     public function create(): View
     {
+        Contract::releaseExpired();
+
         return view('contracts.create', [
 
             'clients' => Client::orderBy('nom')->get(),
@@ -168,11 +174,7 @@ public function index(Request $request): View
         |--------------------------------------------------------------------------
         */
 
-        $contract->vehicle->update([
-
-            'statut' => 'loue',
-
-        ]);
+        $this->syncVehicleStatus($contract);
 
         return redirect()
             ->route('contracts.index')
@@ -246,7 +248,25 @@ public function index(Request $request): View
             $data['total_ht'] +
             $data['tva'];
 
+        $previousVehicleId = $contract->vehicle_id;
+
         $contract->update($data);
+
+        /*
+        |--------------------------------------------------------------------------
+        | Synchronisation du statut véhicule
+        |--------------------------------------------------------------------------
+        */
+
+        if ($previousVehicleId != $contract->vehicle_id) {
+
+            Vehicle::whereKey($previousVehicleId)->update([
+                'statut' => VehicleStatus::DISPONIBLE,
+            ]);
+
+        }
+
+        $this->syncVehicleStatus($contract);
 
         return redirect()
             ->route('contracts.index')
@@ -254,6 +274,23 @@ public function index(Request $request): View
                 'success',
                 'Contrat modifié avec succès.'
             );
+    }
+
+    /**
+     * Aligne le statut du véhicule sur le statut réel du contrat.
+     */
+    private function syncVehicleStatus(Contract $contract): void
+    {
+        $enCours = in_array($contract->statut, [
+            ContractStatus::EN_ATTENTE,
+            ContractStatus::EN_COURS,
+        ], true);
+
+        $contract->vehicle->update([
+            'statut' => $enCours
+                ? VehicleStatus::LOUE
+                : VehicleStatus::DISPONIBLE,
+        ]);
     }
 
     /**

@@ -13,9 +13,9 @@
   /* ============ PAGE SETUP (obligatoire pour DomPDF) ============ */
   @page {
     size: A4;
-    margin-top: 12mm;
+    margin-top: 8mm;
     margin-right: 10mm;
-    margin-bottom: 12mm;
+    margin-bottom: 8mm;
     margin-left: 10mm;
   }
 
@@ -83,21 +83,21 @@
     font-size: 20px;
     font-weight: bold;
     font-style: italic;
-    margin-top: 6px;
+    margin-top: 4px;
   }
   .date-line {
     text-align: right;
     font-style: italic;
     font-weight: bold;
     font-size: 12px;
-    margin: 8px 4px 10px 0;
+    margin: 5px 4px 7px 0;
   }
 
   /* ============ GRID DE BOITES (table = compatible DomPDF) ============ */
   .grid-table {
     width: 100%;
     border-collapse: separate;
-    border-spacing: 4mm;
+    border-spacing: 3mm;
     table-layout: fixed;
   }
   .grid-table td {
@@ -108,15 +108,15 @@
   .box {
     border: 2px solid #000;
     border-radius: 22px;
-    padding: 6px 10px 10px;
+    padding: 5px 10px 8px;
   }
   .box-title {
     text-align: center;
-    font-size: 17px;
+    font-size: 16px;
     font-weight: bold;
     letter-spacing: 1px;
-    margin-bottom: 8px;
-    padding-bottom: 6px;
+    margin-bottom: 5px;
+    padding-bottom: 4px;
     border-bottom: 2px solid #000;
     text-transform: uppercase;
   }
@@ -126,14 +126,14 @@
   }
 
   .field {
-    font-size: 12px;
+    font-size: 11.5px;
     font-weight: bold;
-    line-height: 1.35;
-    padding: 2px 0;
+    line-height: 1.2;
+    padding: 1px 0;
   }
 
   .push-bottom {
-    padding-top: 14px;
+    padding-top: 10px;
   }
 
   /* ============ SIGNATURES ============ */
@@ -142,29 +142,31 @@
     font-weight: bold;
     font-style: italic;
     text-align: center;
-    line-height: 1.3;
-    padding: 2px 4px 12px;
+    line-height: 1.25;
+    padding: 2px 4px 9px;
   }
   .sign-row {
     font-size: 12px;
     font-weight: bold;
-    padding: 14px 2px 6px;
+    padding: 10px 2px 5px;
     border-top: 1px solid #000;
   }
   .sign-right .sign-big {
     font-size: 13px;
     font-weight: bold;
-    padding: 14px 2px;
+    padding: 10px 2px;
   }
   .sign-right .sign-big + .sign-big {
     border-top: 1px solid #000;
+  }
+  .sign-right .obs-text {
+    font-size: 9.5px;
+    line-height: 1.25;
   }
 </style>
 </head>
 
 <body>
-
-  <div style="height: 8mm;"></div>
 
   <!-- ===================== HEADER ===================== -->
   <table class="header-table">
@@ -237,23 +239,21 @@
       <td>
         <div class="box">
           <div class="box-title long">DEUXIEME CONDUCTEUR</div>
-          @if($driver)
-            <div class="field">NOM : {{ $driver->nom }}</div>
-            <div class="field">PRENOM : {{ $driver->prenom }}</div>
-            <div class="field">
-              Date &amp; Lieu de naissance :
-              {{ optional($driver->date_naissance)->format('d/m/Y') }} - {{ $driver->lieu_naissance }}
-            </div>
-            <div class="field">Adresse : {{ $driver->adresse }}</div>
-            <div class="field">N° C.I.N : {{ $driver->cin }}</div>
-            <div class="field">Nationalité : {{ $driver->nationalite }}</div>
-            <div class="field">N° Permis de conduite : {{ $driver->numero_permis }}</div>
-            <div class="field">N° Passeport : {{ $driver->passport }}</div>
-            <div class="field">Adresse à l'étranger : {{ $driver->adresse_etranger }}</div>
-            <div class="field">Téléphone : {{ $driver->telephone }}</div>
-          @else
-            <div class="field">Aucun deuxième conducteur</div>
-          @endif
+          <div class="field">NOM : {{ $driver->nom ?? '' }}</div>
+          <div class="field">PRENOM : {{ $driver->prenom ?? '' }}</div>
+          <div class="field">
+            Date &amp; Lieu de naissance :
+            @if($driver)
+                {{ optional($driver->date_naissance)->format('d/m/Y') }} - {{ $driver->lieu_naissance }}
+            @endif
+          </div>
+          <div class="field">Adresse : {{ $driver->adresse ?? '' }}</div>
+          <div class="field">N° C.I.N : {{ $driver->cin ?? '' }}</div>
+          <div class="field">Nationalité : {{ $driver->nationalite ?? '' }}</div>
+          <div class="field">N° Permis de conduite : {{ $driver->numero_permis ?? '' }}</div>
+          <div class="field">N° Passeport : {{ $driver->passport ?? '' }}</div>
+          <div class="field">Adresse à l'étranger : {{ $driver->adresse_etranger ?? '' }}</div>
+          <div class="field">Téléphone : {{ $driver->telephone ?? '' }}</div>
         </div>
       </td>
 
@@ -290,7 +290,7 @@
       <td>
         <div class="box sign-right">
           <div class="sign-big">Signature Agent :</div>
-          <div class="sign-big">
+          <div class="sign-big obs-text">
             Observation : {{ $contract->observation ?? 'Aucune observation' }}
           </div>
         </div>

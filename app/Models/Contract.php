@@ -3,9 +3,12 @@
 namespace App\Models;
 
 use App\Enums\ContractStatus;
+use App\Enums\VehicleStatus;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Support\Facades\DB;
 
 class Contract extends Model
 {
@@ -195,5 +198,51 @@ class Contract extends Model
     public function isCanceled(): bool
     {
         return $this->statut->value === 'annule';
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Scopes
+    |--------------------------------------------------------------------------
+    */
+
+    /**
+     * Contrats dont la date de retour est dépassée
+     * mais qui n'ont jamais été clôturés.
+     */
+    public function scopeExpirable(Builder $query): Builder
+    {
+        return $query
+            ->whereIn('statut', [
+                ContractStatus::EN_ATTENTE,
+                ContractStatus::EN_COURS,
+            ])
+            ->whereDate('date_retour', '<', now()->toDateString());
+    }
+
+    /**
+     * Clôture les contrats expirés et libère leurs véhicules.
+     */
+    public static function releaseExpired(): void
+    {
+        static::query()
+            ->expirable()
+            ->with('vehicle')
+            ->get()
+            ->each(function (self $contract) {
+
+                DB::transaction(function () use ($contract) {
+
+                    $contract->update([
+                        'statut' => ContractStatus::TERMINE,
+                    ]);
+
+                    $contract->vehicle?->update([
+                        'statut' => VehicleStatus::DISPONIBLE,
+                    ]);
+
+                });
+
+            });
     }
 }

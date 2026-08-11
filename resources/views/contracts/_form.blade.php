@@ -65,7 +65,7 @@
     </div>
     <div class="col-md-3 mb-3">
         <label class="form-label">Heure départ</label>
-        <input type="time" name="heure_depart" value="{{ old('heure_depart', $contract->heure_depart ?? '') }}" class="form-control">
+        <input type="time" name="heure_depart" value="{{ old('heure_depart', isset($contract) ? substr($contract->heure_depart ?? '', 0, 5) : '') }}" class="form-control">
     </div>
     <div class="col-md-3 mb-3">
         <label class="form-label">Date retour</label>
@@ -73,7 +73,7 @@
     </div>
     <div class="col-md-3 mb-3">
         <label class="form-label">Heure retour</label>
-        <input type="time" name="heure_retour" value="{{ old('heure_retour', $contract->heure_retour ?? '') }}" class="form-control">
+        <input type="time" name="heure_retour" value="{{ old('heure_retour', isset($contract) ? substr($contract->heure_retour ?? '', 0, 5) : '') }}" class="form-control">
     </div>
     <div class="col-md-4 mb-3">
         <label class="form-label">Km départ</label>

@@ -5,10 +5,12 @@ namespace App\Http\Controllers\Vehicle;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Vehicle\StoreVehicleRequest;
 use App\Http\Requests\Vehicle\UpdateVehicleRequest;
+use App\Models\Contract;
 use App\Models\Vehicle;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\DB;
 
 class VehicleController extends Controller
 {
@@ -17,6 +19,8 @@ class VehicleController extends Controller
      */
     public function index(Request $request): View
     {
+        Contract::releaseExpired();
+
         $query = Vehicle::query();
 
         /*
@@ -220,12 +224,18 @@ class VehicleController extends Controller
 
     public function addOilChange(Vehicle $vehicle): RedirectResponse
     {
-        // Ajouter 10 000 km à la prochaine vidange
-        $vehicle->update([
-            'derniere_vidange_km'   => $vehicle->kilometrage,
-            'derniere_vidange_date' => now(),
-            'prochaine_vidange_km'  => $vehicle->kilometrage + 10000,
-        ]);
+        DB::transaction(function () use ($vehicle) {
+
+            $nouveauKilometrage = $vehicle->kilometrage + 10000;
+
+            $vehicle->update([
+                'kilometrage'            => $nouveauKilometrage,
+                'derniere_vidange_km'    => $nouveauKilometrage,
+                'derniere_vidange_date'  => now(),
+                'prochaine_vidange_km'   => $nouveauKilometrage + 10000,
+            ]);
+
+        });
 
         return redirect()
             ->back()

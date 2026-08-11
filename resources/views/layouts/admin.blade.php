@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>@yield('title', 'SOULAMI CAR')</title>
 
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
-<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+<link href="{{ asset('vendor/bootstrap/bootstrap.min.css') }}" rel="stylesheet">
+<link href="{{ asset('vendor/bootstrap-icons/bootstrap-icons.min.css') }}" rel="stylesheet">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
@@ -46,14 +46,11 @@
     border-bottom:1px solid var(--line);padding:16px 28px;display:flex;align-items:center;gap:16px}
   .topbar h1{font-size:19px;font-weight:700;margin:0}
   .topbar p{margin:0;font-size:12.5px;color:var(--muted)}
-  .search{margin-left:auto;position:relative}
-  .search input{border:1px solid var(--line);background:#fff;border-radius:10px;
-    padding:9px 14px 9px 36px;width:230px;font-size:13px;outline:none}
-  .search i{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:#9aa1ac}
+  .greet{min-width:0;flex:1}
+  .greet h1,.greet p{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .icon-btn{width:40px;height:40px;border-radius:10px;border:1px solid var(--line);background:#fff;
-    display:grid;place-items:center;color:#4b5563;position:relative}
-  .icon-btn .dot{position:absolute;top:9px;right:10px;width:7px;height:7px;border-radius:50%;background:var(--danger);border:2px solid #fff}
-  .avatar{width:40px;height:40px;border-radius:11px;background:var(--primary);color:#fff;display:grid;place-items:center;font-weight:700}
+    display:grid;place-items:center;color:#4b5563;position:relative;flex:none}
+  .avatar{width:40px;height:40px;border-radius:11px;background:var(--primary);color:#fff;display:grid;place-items:center;font-weight:700;flex:none}
   .content{padding:24px 28px 40px}
 
   .card2{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:0 1px 2px rgba(16,24,40,.04)}
@@ -61,6 +58,8 @@
   .card2 .hd h5{font-size:15px;font-weight:700;margin:0}
   .card2 .hd a{font-size:12.5px;color:var(--primary);font-weight:600}
   .kpi{padding:20px}
+  a.kpi{display:block;color:inherit;transition:.15s;cursor:pointer}
+  a.kpi:hover{box-shadow:0 6px 18px rgba(16,24,40,.08);transform:translateY(-2px);border-color:#dde0e6}
   .kpi .top{display:flex;align-items:flex-start;justify-content:space-between}
   .kpi .ic{width:46px;height:46px;border-radius:13px;display:grid;place-items:center;font-size:22px}
   .kpi .val{font-size:28px;font-weight:800;margin:14px 0 2px;letter-spacing:-.5px}
@@ -174,13 +173,41 @@
   .page-item.active .page-link{background:var(--primary);border-color:var(--primary)}
   .page-link:focus{box-shadow:0 0 0 3px var(--primary-tint)}
 
-  @media(max-width:992px){.sidebar{display:none}.main{margin-left:0}.search input{width:150px}}
+  .menu-btn{display:none}
+  .sidebar-close{display:none;position:absolute;top:20px;right:16px;width:32px;height:32px;
+    border-radius:9px;border:1px solid var(--line);background:#fff;color:#4b5563;
+    place-items:center;font-size:16px}
+  .sidebar-overlay{display:none}
+
+  @media(max-width:992px){
+    .menu-btn{display:grid}
+    .sidebar-close{display:grid}
+    .sidebar{transform:translateX(-100%);transition:transform .25s ease;box-shadow:0 0 0 rgba(0,0,0,0)}
+    .sidebar.open{transform:translateX(0);box-shadow:0 0 40px rgba(0,0,0,.25)}
+    .main{margin-left:0}
+    .sidebar-overlay{position:fixed;inset:0;background:rgba(15,23,42,.45);z-index:19;opacity:0;
+      pointer-events:none;transition:opacity .25s ease}
+    .topbar{padding:14px 16px;gap:10px}
+    .content{padding:18px 16px 32px}
+    .sidebar-overlay.open{opacity:1;pointer-events:auto}
+  }
+
+  @media(max-width:576px){
+    .topbar{padding:12px}
+    .topbar h1{font-size:16px}
+    .greet p{display:none}
+  }
 </style>
 @stack('styles')
 </head>
 <body>
 
-<aside class="sidebar">
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<aside class="sidebar" id="sidebar">
+  <button class="sidebar-close" type="button" id="sidebarCloseBtn" aria-label="Fermer le menu">
+    <i class="bi bi-x-lg"></i>
+  </button>
   <div class="brand">
     <div class="logo"><i class="bi bi-car-front-fill"></i></div>
     <div><b>SOULAMI CAR</b><span>Location de voiture</span></div>
@@ -210,15 +237,13 @@
 
 <div class="main">
   <div class="topbar">
-    <div>
+    <button class="icon-btn menu-btn" type="button" id="menuBtn" aria-label="Ouvrir le menu">
+      <i class="bi bi-list" style="font-size:20px"></i>
+    </button>
+    <div class="greet">
       <h1>Bonjour, {{ auth()->user()->name ?? 'Administrateur' }} 👋</h1>
       <p>Voici l'activité de votre agence — {{ ucfirst(now()->locale('fr')->isoFormat('dddd D MMMM YYYY')) }}</p>
     </div>
-    <div class="search">
-      <i class="bi bi-search"></i>
-      <input placeholder="Rechercher...">
-    </div>
-    <button class="icon-btn" type="button"><i class="bi bi-bell"></i><span class="dot"></span></button>
     <div class="avatar">{{ strtoupper(substr(auth()->user()->name ?? 'A', 0, 1)) }}</div>
   </div>
 
@@ -227,8 +252,34 @@
   </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+<script src="{{ asset('vendor/bootstrap/bootstrap.min.js') }}"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+<script>
+  (function () {
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebarOverlay');
+    const menuBtn = document.getElementById('menuBtn');
+    const closeBtn = document.getElementById('sidebarCloseBtn');
+
+    function openSidebar() {
+      sidebar.classList.add('open');
+      overlay.classList.add('open');
+    }
+
+    function closeSidebar() {
+      sidebar.classList.remove('open');
+      overlay.classList.remove('open');
+    }
+
+    menuBtn.addEventListener('click', openSidebar);
+    overlay.addEventListener('click', closeSidebar);
+    closeBtn.addEventListener('click', closeSidebar);
+
+    window.addEventListener('resize', function () {
+      if (window.innerWidth > 992) closeSidebar();
+    });
+  })();
+</script>
 @stack('scripts')
 </body>
 </html>

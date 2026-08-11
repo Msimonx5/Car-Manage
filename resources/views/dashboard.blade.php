@@ -18,7 +18,7 @@
 <div class="row g-3 mb-3">
 
     <div class="col-xl-3 col-md-6">
-        <div class="card2 kpi">
+        <a href="{{ route('clients.index') }}" class="card2 kpi kpi-link">
             <div class="top">
                 <div class="ic tint-primary"><i class="bi bi-people"></i></div>
                 <span class="trend {{ $newClientsThisMonth > 0 ? 'up' : 'flat' }}">
@@ -28,11 +28,11 @@
             <div class="val">{{ $totalClients }}</div>
             <div class="lbl">Clients enregistrés</div>
             <div class="sub">{{ $newClientsThisMonth }} nouveau(x) ce mois-ci</div>
-        </div>
+        </a>
     </div>
 
     <div class="col-xl-3 col-md-6">
-        <div class="card2 kpi">
+        <a href="{{ route('vehicles.index') }}" class="card2 kpi kpi-link">
             <div class="top">
                 <div class="ic tint-success"><i class="bi bi-car-front"></i></div>
                 <span class="trend flat">{{ $fleetUtilization }}% util.</span>
@@ -43,11 +43,11 @@
                 <span style="color:var(--success);font-weight:600">{{ $availableVehicles }} disponibles</span>
                 · {{ $rentedVehicles }} loués
             </div>
-        </div>
+        </a>
     </div>
 
     <div class="col-xl-3 col-md-6">
-        <div class="card2 kpi">
+        <a href="{{ route('contracts.index') }}" class="card2 kpi kpi-link">
             <div class="top">
                 <div class="ic tint-warning"><i class="bi bi-file-earmark-text"></i></div>
                 <span class="trend flat">{{ $activeContracts }} actifs</span>
@@ -58,11 +58,11 @@
                 <span style="color:var(--info);font-weight:600">{{ $activeContracts }} en cours</span>
                 · {{ $pendingContracts }} en attente
             </div>
-        </div>
+        </a>
     </div>
 
     <div class="col-xl-3 col-md-6">
-        <div class="card2 kpi">
+        <a href="{{ route('contracts.index') }}" class="card2 kpi kpi-link">
             <div class="top">
                 <div class="ic tint-info"><i class="bi bi-cash-coin"></i></div>
                 @if(is_null($revenueTrend))
@@ -77,7 +77,7 @@
                 <small style="font-size:14px;font-weight:600;color:var(--muted)">DH</small></div>
             <div class="lbl">Chiffre d'affaires</div>
             <div class="sub">Ce mois : <b>{{ number_format($monthlyRevenue, 0, ',', ' ') }} DH</b></div>
-        </div>
+        </a>
     </div>
 
 </div>
