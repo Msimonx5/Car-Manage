@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Contract;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Contract\StoreContractRequest;
 use App\Http\Requests\Contract\UpdateContractRequest;
-use App\Enums\ContractStatus;
 use App\Enums\VehicleStatus;
 use App\Models\Client;
 use App\Models\Contract;
@@ -14,91 +13,92 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
+use Illuminate\Support\Facades\DB;
 
 class ContractController extends Controller
 {
     /**
      * Liste des contrats.
      */
-public function index(Request $request): View
-{
-    Contract::releaseExpired();
+    public function index(Request $request): View
+    {
+        Contract::releaseExpired();
 
-    $query = Contract::query()
-        ->with([
-            'client:id,nom,prenom',
-            'vehicle:id,marque,modele,immatriculation',
-        ]);
+        $query = Contract::query()
+            ->with([
+                'client:id,nom,prenom',
+                'vehicle:id,marque,modele,immatriculation',
+            ]);
 
-    /*
-    |--------------------------------------------------------------------------
-    | Recherche
-    |--------------------------------------------------------------------------
-    */
+        /*
+        |--------------------------------------------------------------------------
+        | Recherche
+        |--------------------------------------------------------------------------
+        */
 
-    if ($request->filled('q')) {
+        if ($request->filled('q')) {
 
-        $search = $request->q;
+            $search = $request->q;
 
-        $query->where(function ($q) use ($search) {
+            $query->where(function ($q) use ($search) {
 
-            $q->where('numero', 'like', "%{$search}%")
-                ->orWhereHas('client', function ($client) use ($search) {
+                $q->where('numero', 'like', "%{$search}%")
+                    ->orWhereHas('client', function ($client) use ($search) {
 
-                    $client->where('nom', 'like', "%{$search}%")
-                           ->orWhere('prenom', 'like', "%{$search}%");
+                        $client->where('nom', 'like', "%{$search}%")
+                               ->orWhere('prenom', 'like', "%{$search}%");
 
-                })
-                ->orWhereHas('vehicle', function ($vehicle) use ($search) {
+                    })
+                    ->orWhereHas('vehicle', function ($vehicle) use ($search) {
 
-                    $vehicle->where('immatriculation', 'like', "%{$search}%")
-                            ->orWhere('marque', 'like', "%{$search}%")
-                            ->orWhere('modele', 'like', "%{$search}%");
+                        $vehicle->where('immatriculation', 'like', "%{$search}%")
+                                ->orWhere('marque', 'like', "%{$search}%")
+                                ->orWhere('modele', 'like', "%{$search}%");
 
-                });
+                    });
 
-        });
+            });
 
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Filtre
+        |--------------------------------------------------------------------------
+        */
+
+        if ($request->filled('statut')) {
+
+            $query->where('statut', $request->statut);
+
+        }
+
+        $contracts = $query
+            ->latest()
+            ->paginate(10)
+            ->withQueryString();
+
+        $stats = [
+
+            'total' => Contract::count(),
+
+            'en_attente' => Contract::where('statut', 'en_attente')->count(),
+
+            'en_cours' => Contract::where('statut', 'en_cours')->count(),
+
+            'termine' => Contract::where('statut', 'termine')->count(),
+
+            'annule' => Contract::where('statut', 'annule')->count(),
+
+            'chiffre_affaires' => Contract::sum('total_ttc'),
+
+        ];
+
+        return view('contracts.index', compact(
+            'contracts',
+            'stats'
+        ));
     }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Filtre
-    |--------------------------------------------------------------------------
-    */
-
-    if ($request->filled('statut')) {
-
-        $query->where('statut', $request->statut);
-
-    }
-
-    $contracts = $query
-        ->latest()
-        ->paginate(10)
-        ->withQueryString();
-
-    $stats = [
-
-        'total' => Contract::count(),
-
-        'en_attente' => Contract::where('statut', 'en_attente')->count(),
-
-        'en_cours' => Contract::where('statut', 'en_cours')->count(),
-
-        'termine' => Contract::where('statut', 'termine')->count(),
-
-        'annule' => Contract::where('statut', 'annule')->count(),
-
-        'chiffre_affaires' => Contract::sum('total_ttc'),
-
-    ];
-
-    return view('contracts.index', compact(
-        'contracts',
-        'stats'
-    ));
-}
 
     /**
      * Formulaire création.
@@ -127,29 +127,11 @@ public function index(Request $request): View
 
         /*
         |--------------------------------------------------------------------------
-        | Numéro contrat
-        |--------------------------------------------------------------------------
-        */
-
-        $data['numero'] =
-            'CTR-' .
-            now()->format('Ymd') .
-            '-' .
-            str_pad(
-                Contract::max('id') + 1,
-                5,
-                '0',
-                STR_PAD_LEFT
-            );
-
-        /*
-        |--------------------------------------------------------------------------
         | Calcul automatique
         |--------------------------------------------------------------------------
         */
 
         $depart = Carbon::parse($data['date_depart']);
-
         $retour = Carbon::parse($data['date_retour']);
 
         $data['nombre_jours'] =
@@ -166,7 +148,33 @@ public function index(Request $request): View
             $data['total_ht'] +
             $data['tva'];
 
-        $contract = Contract::create($data);
+        /*
+        |--------------------------------------------------------------------------
+        | Création du contrat
+        |--------------------------------------------------------------------------
+        */
+
+        $contract = DB::transaction(function () use ($data) {
+
+            // On crée d'abord le contrat sans numéro
+            $contract = Contract::create($data);
+
+            // L'ID est maintenant connu et unique
+            $contract->update([
+                'numero' =>
+                    'CTR-' .
+                    now()->format('Ymd') .
+                    '-' .
+                    str_pad(
+                        $contract->id,
+                        5,
+                        '0',
+                        STR_PAD_LEFT
+                    ),
+            ]);
+
+            return $contract;
+        });
 
         /*
         |--------------------------------------------------------------------------
@@ -174,7 +182,7 @@ public function index(Request $request): View
         |--------------------------------------------------------------------------
         */
 
-        $this->syncVehicleStatus($contract);
+        $contract->syncVehicleStatus();
 
         return redirect()
             ->route('contracts.index')
@@ -266,7 +274,7 @@ public function index(Request $request): View
 
         }
 
-        $this->syncVehicleStatus($contract);
+        $contract->syncVehicleStatus();
 
         return redirect()
             ->route('contracts.index')
@@ -274,23 +282,6 @@ public function index(Request $request): View
                 'success',
                 'Contrat modifié avec succès.'
             );
-    }
-
-    /**
-     * Aligne le statut du véhicule sur le statut réel du contrat.
-     */
-    private function syncVehicleStatus(Contract $contract): void
-    {
-        $enCours = in_array($contract->statut, [
-            ContractStatus::EN_ATTENTE,
-            ContractStatus::EN_COURS,
-        ], true);
-
-        $contract->vehicle->update([
-            'statut' => $enCours
-                ? VehicleStatus::LOUE
-                : VehicleStatus::DISPONIBLE,
-        ]);
     }
 
     /**
@@ -308,7 +299,7 @@ public function index(Request $request): View
 
         $contract->vehicle->update([
 
-            'statut' => 'disponible',
+            'statut' => VehicleStatus::DISPONIBLE,
 
         ]);
 

@@ -71,11 +71,46 @@
                         <td><x-badge.oil-change-status :vehicle="$vehicle"/></td>
                         <td><x-badge.insurance-status :vehicle="$vehicle"/></td>
                         <td style="text-align:right;white-space:nowrap">
-                            <form action="{{ route('vehicles.oil-change', $vehicle) }}" method="POST" class="d-inline"
-                                  onsubmit="return confirm('Enregistrer une vidange (+10 000 km) ?')">
-                                @csrf @method('PATCH')
-                                <button class="act oil" title="Effectuer la vidange"><i class="bi bi-droplet"></i></button>
-                            </form>
+                        <button type="button" class="act oil" title="Effectuer la vidange"
+                                data-bs-toggle="modal" data-bs-target="#oilChangeModal{{ $vehicle->id }}">
+                            <i class="bi bi-droplet"></i>
+                        </button>
+
+                        {{-- Modal --}}
+                        <div class="modal fade" id="oilChangeModal{{ $vehicle->id }}" tabindex="-1" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <form action="{{ route('vehicles.oil-change', $vehicle) }}" method="POST">
+                                        @csrf
+                                        @method('PATCH')
+
+                                        <div class="modal-header">
+                                            <h5 class="modal-title">Enregistrer une vidange — {{ $vehicle->immatriculation }}</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                        </div>
+
+                                        <div class="modal-body">
+                                            <div class="mb-3">
+                                                <label class="form-label">Kilométrage actuel constaté</label>
+                                                <input type="number" name="kilometrage_actuel" class="form-control"
+                                                    value="{{ $vehicle->kilometrage }}" min="{{ $vehicle->kilometrage }}" required>
+                                                <small class="text-muted">Kilométrage actuel en base : {{ number_format($vehicle->kilometrage, 0, ',', ' ') }} km</small>
+                                            </div>
+
+                                            <div class="mb-3">
+                                                <label class="form-label">Intervalle avant prochaine vidange (km)</label>
+                                                <input type="number" name="intervalle_km" class="form-control" value="10000" min="1000">
+                                            </div>
+                                        </div>
+
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                                            <button type="submit" class="btn-brand">Confirmer la vidange</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
                             <a href="{{ route('vehicles.show', $vehicle) }}" class="act view" title="Voir"><i class="bi bi-eye"></i></a>
                             <a href="{{ route('vehicles.edit', $vehicle) }}" class="act edit" title="Modifier"><i class="bi bi-pencil"></i></a>
                             <form action="{{ route('vehicles.destroy', $vehicle) }}" method="POST" class="d-inline"

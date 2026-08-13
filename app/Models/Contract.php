@@ -129,10 +129,21 @@ class Contract extends Model
             ->diffInDays($this->date_retour) + 1;
     }
 
+    /**
+     * Instant exact de retour prévu (date + heure).
+     * Source unique utilisée pour tout calcul d'expiration.
+     */
+    public function getReturnDeadlineAttribute(): \Illuminate\Support\Carbon
+    {
+        return $this->date_retour->copy()->setTimeFromTimeString(
+            $this->heure_retour ?? '23:59:59'
+        );
+    }
+
     public function getIsExpiredAttribute(): bool
     {
         return now()->greaterThan(
-            $this->date_retour
+            $this->return_deadline
         );
     }
 
@@ -202,12 +213,39 @@ class Contract extends Model
 
     /*
     |--------------------------------------------------------------------------
+    | Statut véhicule
+    |--------------------------------------------------------------------------
+    */
+
+    /**
+     * Aligne le statut du véhicule sur l'état réel du contrat.
+     * Source unique utilisée par le contrôleur ET par releaseExpired().
+     *
+     * Loué  = contrat actif (en_attente / en_cours) ET pas encore expiré.
+     * Sinon = disponible (terminé, annulé, ou en_cours mais expiré).
+     */
+    public function syncVehicleStatus(): void
+    {
+        $loue = in_array($this->statut, [
+            ContractStatus::EN_ATTENTE,
+            ContractStatus::EN_COURS,
+        ], true) && ! $this->is_expired;
+
+        $this->vehicle?->update([
+            'statut' => $loue
+                ? VehicleStatus::LOUE
+                : VehicleStatus::DISPONIBLE,
+        ]);
+    }
+
+    /*
+    |--------------------------------------------------------------------------
     | Scopes
     |--------------------------------------------------------------------------
     */
 
     /**
-     * Contrats dont la date de retour est dépassée
+     * Contrats dont la date/heure de retour est dépassée
      * mais qui n'ont jamais été clôturés.
      */
     public function scopeExpirable(Builder $query): Builder
@@ -217,7 +255,22 @@ class Contract extends Model
                 ContractStatus::EN_ATTENTE,
                 ContractStatus::EN_COURS,
             ])
-            ->whereDate('date_retour', '<', now()->toDateString());
+            ->where(function (Builder $q) {
+
+                $q->whereDate('date_retour', '<', now()->toDateString())
+                  ->orWhere(function (Builder $q2) {
+
+                      $q2->whereDate('date_retour', now()->toDateString())
+                         ->where(function (Builder $q3) {
+
+                             $q3->whereNull('heure_retour')
+                                ->orWhere('heure_retour', '<=', now()->toTimeString());
+
+                         });
+
+                  });
+
+            });
     }
 
     /**
@@ -237,9 +290,7 @@ class Contract extends Model
                         'statut' => ContractStatus::TERMINE,
                     ]);
 
-                    $contract->vehicle?->update([
-                        'statut' => VehicleStatus::DISPONIBLE,
-                    ]);
+                    $contract->syncVehicleStatus();
 
                 });
 

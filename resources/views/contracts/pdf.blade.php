@@ -54,27 +54,27 @@
     line-height: 1.4;
     margin-top: 2px;
   }
-  .brand-right {
-    width: 45%;
-    text-align: center;
-  }
-  .brand-right .company {
+ .brand-right .company {
     font-size: 20px;
     font-weight: bold;
     letter-spacing: 1px;
+    color: #0484f7;
   }
   .brand-right .loc {
     font-size: 14px;
     font-weight: bold;
+    color: #0484f7;
   }
   .brand-right .rent {
     font-family: 'DejaVu Sans', sans-serif;
     font-size: 13px;
     font-weight: bold;
+    color: #0484f7;
   }
   .brand-right .courtes {
     font-family: "Times New Roman", Georgia, serif;
     font-size: 15px;
+    color: #0484f7;
   }
 
   /* ============ TITLE ============ */
@@ -84,6 +84,7 @@
     font-weight: bold;
     font-style: italic;
     margin-top: 4px;
+    color: #0484f7;
   }
   .date-line {
     text-align: right;
@@ -91,6 +92,7 @@
     font-weight: bold;
     font-size: 12px;
     margin: 5px 4px 7px 0;
+    color: #0484f7;
   }
 
   /* ============ GRID DE BOITES (table = compatible DomPDF) ============ */
@@ -130,6 +132,10 @@
     font-weight: bold;
     line-height: 1.2;
     padding: 1px 0;
+  }
+
+  .value {
+    color: #0484f7;
   }
 
   .push-bottom {
@@ -193,28 +199,29 @@
   <!-- ===================== TITLE ===================== -->
   <div class="title">CONTRAT DE LOCATION </div>
   {{-- <div class="title">CONTRAT DE LOCATION N° {{ $contract->numero }}</div> --}}
-  <div class="date-line">Khouribga Le : {{ $contract->created_at->format('d/m/Y') }}</div>
+  {{-- <div class="date-line">Khouribga Le : {{ $contract->created_at->format('d/m/Y') }}</div> --}}
+  <div class="date-line">Khouribga Le : {{ $contract->date_depart->format('d/m/Y') }}</div>
 
   <!-- ===================== BOXES ===================== -->
-  <table class="grid-table">
+<table class="grid-table">
     <tr>
       <!-- ---------- CLIENT ---------- -->
       <td>
         <div class="box">
           <div class="box-title">CLIENT</div>
-          <div class="field">NOM : {{ $client->nom }}</div>
-          <div class="field">PRENOM : {{ $client->prenom }}</div>
+          <div class="field">NOM : <span class="value">{{ $client->nom }}</span></div>
+          <div class="field">PRENOM : <span class="value">{{ $client->prenom }}</span></div>
           <div class="field">
             Date &amp; Lieu de naissance :
-            {{ optional($client->date_naissance)->format('d/m/Y') }} - {{ $client->lieu_naissance }}
+            <span class="value">{{ optional($client->date_naissance)->format('d/m/Y') }} - {{ $client->lieu_naissance }}</span>
           </div>
-          <div class="field">Adresse : {{ $client->adresse }}</div>
-          <div class="field">N° C.I.N : {{ $client->cin }}</div>
-          <div class="field">Nationalité : {{ $client->nationalite }}</div>
-          <div class="field">N° Permis de conduite : {{ $client->numero_permis }}</div>
-          <div class="field">N° Passeport : {{ $client->passport }}</div>
-          <div class="field">Adresse à l'étranger : {{ $client->adresse_etranger }}</div>
-          <div class="field">Téléphone : {{ $client->telephone }}</div>
+          <div class="field">Adresse : <span class="value">{{ $client->adresse }}</span></div>
+          <div class="field">N° C.I.N : <span class="value">{{ $client->cin }}</span></div>
+          <div class="field">Nationalité : <span class="value">{{ $client->nationalite }}</span></div>
+          <div class="field">N° Permis de conduite : <span class="value">{{ $client->numero_permis }}</span></div>
+          <div class="field">N° Passeport : <span class="value">{{ $client->passport }}</span></div>
+          <div class="field">Adresse à l'étranger : <span class="value">{{ $client->adresse_etranger }}</span></div>
+          <div class="field">Téléphone : <span class="value">{{ $client->telephone }}</span></div>
         </div>
       </td>
 
@@ -222,14 +229,15 @@
       <td>
         <div class="box">
           <div class="box-title">VOITURE</div>
-          <div class="field">Marque : {{ $vehicle->marque }} {{ $vehicle->modele }}</div>
-          <div class="field">Immatriculation : {{ $vehicle->immatriculation }}</div>
-          <div class="field">Date de départ : {{ $contract->date_depart->format('d/m/Y') }}</div>
-          <div class="field">Heure de départ : {{ \Carbon\Carbon::parse($contract->heure_depart)->format('H:i') }}</div>
-          <div class="field">Date de retour : {{ $contract->date_retour->format('d/m/Y') }}</div>
-          <div class="field">Heure de retour : {{ \Carbon\Carbon::parse($contract->heure_retour)->format('H:i') }}</div>
-          <div class="field">Km départ : {{ $contract->km_depart }}</div>
-          <div class="field">Km retour : {{ $contract->km_retour }}</div>
+          <div class="field">Marque : <span class="value">{{ $vehicle->marque }} {{ $vehicle->modele }}</span></div>
+          <div class="field">Immatriculation : <span class="value">{{ $vehicle->immatriculation }}</span></div>
+          <div class="field">Date de départ : <span class="value">{{ $contract->date_depart->format('d/m/Y') }}</span></div>
+          <div class="field">Heure de départ : <span class="value">{{ \Carbon\Carbon::parse($contract->heure_depart)->format('H:i') }}</span></div>
+          <div class="field">Date de retour : <span class="value">{{ $contract->date_retour->format('d/m/Y') }}</span></div>
+          <div class="field">Heure de retour : <span class="value">{{ \Carbon\Carbon::parse($contract->heure_retour)->format('H:i') }}</span></div>
+          <div class="field">Km départ : <span class="value">{{ $contract->km_depart }}</span></div>
+          <div class="field">Km retour : <span class="value">{{ $contract->km_retour }}</span></div>
+          <div class="field">pronologation:</div>
         </div>
       </td>
     </tr>
@@ -239,21 +247,21 @@
       <td>
         <div class="box">
           <div class="box-title long">DEUXIEME CONDUCTEUR</div>
-          <div class="field">NOM : {{ $driver->nom ?? '' }}</div>
-          <div class="field">PRENOM : {{ $driver->prenom ?? '' }}</div>
+          <div class="field">NOM : <span class="value">{{ $driver->nom ?? '' }}</span></div>
+          <div class="field">PRENOM : <span class="value">{{ $driver->prenom ?? '' }}</span></div>
           <div class="field">
             Date &amp; Lieu de naissance :
             @if($driver)
-                {{ optional($driver->date_naissance)->format('d/m/Y') }} - {{ $driver->lieu_naissance }}
+                <span class="value">{{ optional($driver->date_naissance)->format('d/m/Y') }} - {{ $driver->lieu_naissance }}</span>
             @endif
           </div>
-          <div class="field">Adresse : {{ $driver->adresse ?? '' }}</div>
-          <div class="field">N° C.I.N : {{ $driver->cin ?? '' }}</div>
-          <div class="field">Nationalité : {{ $driver->nationalite ?? '' }}</div>
-          <div class="field">N° Permis de conduite : {{ $driver->numero_permis ?? '' }}</div>
-          <div class="field">N° Passeport : {{ $driver->passport ?? '' }}</div>
-          <div class="field">Adresse à l'étranger : {{ $driver->adresse_etranger ?? '' }}</div>
-          <div class="field">Téléphone : {{ $driver->telephone ?? '' }}</div>
+          <div class="field">Adresse : <span class="value">{{ $driver->adresse ?? '' }}</span></div>
+          <div class="field">N° C.I.N : <span class="value">{{ $driver->cin ?? '' }}</span></div>
+          <div class="field">Nationalité : <span class="value">{{ $driver->nationalite ?? '' }}</span></div>
+          <div class="field">N° Permis de conduite : <span class="value">{{ $driver->numero_permis ?? '' }}</span></div>
+          <div class="field">N° Passeport : <span class="value">{{ $driver->passport ?? '' }}</span></div>
+          <div class="field">Adresse à l'étranger : <span class="value">{{ $driver->adresse_etranger ?? '' }}</span></div>
+          <div class="field">Téléphone : <span class="value">{{ $driver->telephone ?? '' }}</span></div>
         </div>
       </td>
 
@@ -261,14 +269,22 @@
       <td>
         <div class="box">
           <div class="box-title">FRAIS</div>
-          <div class="field">Caution : {{ number_format($contract->caution, 2, ',', ' ') }} DH</div>
-          <div class="field">Avance : {{ number_format($contract->avance, 2, ',', ' ') }} DH</div>
-          <div class="field">Tarif / jour : {{ number_format($contract->tarif_jour, 2, ',', ' ') }} DH</div>
-          <div class="field">Nombre de jours : {{ $contract->nombre_jours }}</div>
-          <div class="field">Total H.T : {{ number_format($contract->total_ht, 2, ',', ' ') }} DH</div>
-          <div class="field">T.V.A (20%) : {{ number_format($contract->tva, 2, ',', ' ') }} DH</div>
-          <div class="field">Total T.T.C : {{ number_format($contract->total_ttc, 2, ',', ' ') }} DH</div>
-          <div class="field push-bottom">Mode De Règlement : {{ $contract->mode_paiement }}</div>
+          {{-- <div class="field">Caution : <span class="value">{{ number_format($contract->caution, 2, ',', ' ') }} DH</span></div>
+          <div class="field">Avance : <span class="value">{{ number_format($contract->avance, 2, ',', ' ') }} DH</span></div>
+          <div class="field">Tarif / jour : <span class="value">{{ number_format($contract->tarif_jour, 2, ',', ' ') }} DH</span></div>
+          <div class="field">Nombre de jours : <span class="value">{{ $contract->nombre_jours }}</span></div>
+          <div class="field">Total H.T : <span class="value">{{ number_format($contract->total_ht, 2, ',', ' ') }} DH</span></div>
+          <div class="field">T.V.A (20%) : <span class="value">{{ number_format($contract->tva, 2, ',', ' ') }} DH</span></div>
+          <div class="field">Total T.T.C : <span class="value">{{ number_format($contract->total_ttc, 2, ',', ' ') }} DH</span></div>
+          <div class="field push-bottom">Mode De Règlement : <span class="value">{{ $contract->mode_paiement }}</span></div> --}}
+          <div class="field">Caution :</span></div>
+          <div class="field">Avance :</span></div>
+          <div class="field">Tarif / jour :</span></div>
+          <div class="field">Nombre de jours :</span></div>
+          <div class="field">Total H.T : <span class="value"></span></div>
+          <div class="field">T.V.A (20%) : <span class="value"></span></div>
+          <div class="field">Total T.T.C : <span class="value"></span></div>
+          <div class="field push-bottom">Mode De Règlement : <span class="value"></span></div>
         </div>
       </td>
     </tr>
@@ -291,7 +307,7 @@
         <div class="box sign-right">
           <div class="sign-big">Signature Agent :</div>
           <div class="sign-big obs-text">
-            Observation : {{ $contract->observation ?? 'Aucune observation' }}
+            Observation : <span class="value">{{ $contract->observation ?? 'Aucune observation' }}</span>
           </div>
         </div>
       </td>

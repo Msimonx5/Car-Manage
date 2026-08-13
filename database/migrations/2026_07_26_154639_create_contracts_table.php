@@ -19,7 +19,7 @@ return new class extends Migration
             |--------------------------------------------------------------------------
             */
 
-            $table->string('numero')->unique();
+            $table->string('numero')->nullable()->unique();
 
             $table->foreignId('client_id')
                 ->constrained()

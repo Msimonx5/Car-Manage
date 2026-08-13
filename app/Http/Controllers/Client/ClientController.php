@@ -8,15 +8,47 @@ use App\Http\Requests\Client\UpdateClientRequest;
 use App\Models\Client;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
+use Illuminate\Http\Request;
 
 class ClientController extends Controller
 {
     /**
      * Afficher la liste des clients.
      */
-    public function index(): View
+    public function index(Request $request)
     {
-        $clients = Client::latest()->paginate(10);
+        $query = Client::query();
+
+        // Search by nom, prenom, cin, telephone, or numero_permis
+        if ($request->filled('q')) {
+            $q = $request->q;
+            $query->where(function ($sub) use ($q) {
+                $sub->where('nom', 'like', "%{$q}%")
+                    ->orWhere('prenom', 'like', "%{$q}%")
+                    ->orWhere('cin', 'like', "%{$q}%")
+                    ->orWhere('telephone', 'like', "%{$q}%")
+                    ->orWhere('numero_permis', 'like', "%{$q}%")
+                    ->orWhereRaw("CONCAT(prenom, ' ', nom) LIKE ?", ["%{$q}%"]);
+            });
+        }
+
+        // Filter by type
+        if ($request->filled('type')) {
+            $query->where('type', $request->type);
+        }
+
+        // Sorting
+        switch ($request->get('sort', 'latest')) {
+            case 'nom':
+                $query->orderBy('nom')->orderBy('prenom');
+                break;
+            case 'latest':
+            default:
+                $query->latest();
+                break;
+        }
+
+        $clients = $query->paginate(15)->withQueryString();
 
         return view('clients.index', compact('clients'));
     }

@@ -19,6 +19,30 @@
 @endif
 
 <div class="card2">
+     <div style="padding:16px 18px;border-bottom:1px solid var(--line)">
+        <form method="GET" class="row g-2 align-items-center">
+            <div class="col-md-4">
+                <input type="text" name="q" value="{{ request('q') }}" class="form-control" placeholder="Nom, prénom, CIN ou téléphone">
+            </div>
+            <div class="col-md-3">
+                <select name="type" class="form-select">
+                    <option value="">Tous les types</option>
+                    <option value="principal" @selected(request('type')=='principal')>Principal</option>
+                    <option value="secondaire" @selected(request('type')=='secondaire')>Secondaire</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <select name="sort" class="form-select">
+                    <option value="latest" @selected(request('sort')=='latest')>Plus récents</option>
+                    <option value="nom" @selected(request('sort')=='nom')>Nom</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button class="btn-brand w-100 justify-content-center"><i class="bi bi-search"></i> Filtrer</button>
+            </div>
+        </form>
+    </div>
+
     <div style="padding:8px 4px 4px;overflow-x:auto">
         <table class="t2">
             <thead>

@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
+use App\Http\Requests\Vehicle\RecordOilChangeRequest; // <-- import à ajouter en haut
 
 class VehicleController extends Controller
 {
@@ -222,24 +223,29 @@ class VehicleController extends Controller
     }
 
 
-    public function addOilChange(Vehicle $vehicle): RedirectResponse
-    {
-        DB::transaction(function () use ($vehicle) {
+// VehicleController.php
 
-            $nouveauKilometrage = $vehicle->kilometrage + 10000;
+
+    public function addOilChange(RecordOilChangeRequest $request, Vehicle $vehicle): RedirectResponse
+    {
+        $data = $request->validated();
+
+        $km = max($vehicle->kilometrage, $data['kilometrage_actuel']);
+
+        $intervalle = $data['intervalle_km'] ?? 10000;
+
+        DB::transaction(function () use ($vehicle, $km, $intervalle) {
 
             $vehicle->update([
-                'kilometrage'            => $nouveauKilometrage,
-                'derniere_vidange_km'    => $nouveauKilometrage,
-                'derniere_vidange_date'  => now(),
-                'prochaine_vidange_km'   => $nouveauKilometrage + 10000,
+                'kilometrage'           => $km,
+                'derniere_vidange_km'   => $km,
+                'derniere_vidange_date' => now(),
+                'prochaine_vidange_km'  => $km + $intervalle,
             ]);
 
         });
 
-        return redirect()
-            ->back()
-            ->with('success', 'Vidange effectuée avec succès.');
+        return redirect()->back()->with('success', 'Vidange enregistrée avec succès.');
     }
 
     /**
