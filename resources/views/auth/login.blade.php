@@ -41,14 +41,14 @@
             <input class="form-check-input" type="checkbox" name="remember" id="remember">
             <label class="form-check-label" for="remember">Se souvenir de moi</label>
         </div>
-        {{-- <a href="{{ route('password.request') }}">Mot de passe oublié ?</a> --}}
+        <a href="{{ route('password.request') }}">Mot de passe oublié ?</a>
     </div>
 
     <button type="submit" class="btn-brand"><i class="bi bi-box-arrow-in-right"></i> Se connecter</button>
 </form>
 
-{{-- <div class="auth-foot">
+<div class="auth-foot">
     Pas encore de compte ? <a href="{{ route('register') }}">Créer un compte</a>
-</div> --}}
+</div>
 
 @endsection

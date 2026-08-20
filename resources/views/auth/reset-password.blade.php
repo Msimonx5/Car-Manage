@@ -18,7 +18,7 @@
 
                 <div class="card-body">
 
-                    <form action="{{ route('password.update') }}"
+                    <form action="{{ route('password.store') }}"
                           method="POST">
 
                         @csrf

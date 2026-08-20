@@ -1,15 +1,16 @@
 <?php
 
-use App\Http\Controllers\Auth\ForgotPasswordController;
-use App\Http\Controllers\Auth\LoginController;
-use App\Http\Controllers\Auth\RegisterController;
-use App\Http\Controllers\Auth\ResetPasswordController;
+use App\Http\Controllers\Auth\NewPasswordController;
+use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\Auth\RegisteredUserController;
+use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Client\ClientController;
 use App\Http\Controllers\Contract\ContractController;
 use App\Http\Controllers\Contract\ContractPdfController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Vehicle\VehicleController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\User\UserRoleController;
 
 /*
 |--------------------------------------------------------------------------
@@ -30,26 +31,6 @@ Route::get('/', function () {
 |--------------------------------------------------------------------------
 */
 
-Route::middleware('guest')->group(function () {
-
-    Route::get('/login', [LoginController::class, 'create'])->name('login');
-    Route::post('/login', [LoginController::class, 'store']);
-
-    // Route::get('/register', [RegisterController::class, 'create'])->name('register');
-    // Route::post('/register', [RegisterController::class, 'store']);
-
-    // Route::get('/forgot-password', [ForgotPasswordController::class, 'create'])
-    //     ->name('password.request');
-    // Route::post('/forgot-password', [ForgotPasswordController::class, 'store'])
-    //     ->name('password.email');
-
-    // Route::get('/reset-password/{token}', [ResetPasswordController::class, 'create'])
-    //     ->name('password.reset');
-    // Route::post('/reset-password', [ResetPasswordController::class, 'store'])
-    //     ->name('password.update');
-
-});
-
 /*
 |--------------------------------------------------------------------------
 | Application (utilisateurs authentifiés)
@@ -58,7 +39,7 @@ Route::middleware('guest')->group(function () {
 
 Route::middleware('auth')->group(function () {
 
-    Route::post('/logout', [LoginController::class, 'destroy'])->name('logout');
+    Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
 
     Route::get('/home', function () {
         return view('home');
@@ -107,3 +88,13 @@ Route::middleware('auth')->group(function () {
         });
 
 });
+
+
+    Route::middleware(['auth' ,'role:admin'])->group(function () {
+        Route::get('/users', [UserRoleController::class, 'index'])->name('users.index');
+        Route::get('/users/{user}/roles', [UserRoleController::class, 'edit'])->name('users.roles.edit');
+        Route::put('/users/{user}/roles', [UserRoleController::class, 'update'])->name('users.roles.update');
+    });
+
+
+require __DIR__.'/auth.php';

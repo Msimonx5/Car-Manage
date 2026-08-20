@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Contract;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Response;
+use Debugbar;
 
 class ContractPdfController extends Controller
 {
@@ -52,6 +53,7 @@ class ContractPdfController extends Controller
      */
     public function download(Contract $contract): Response
     {
+
         $contract->load([
             'client',
             'vehicle',
