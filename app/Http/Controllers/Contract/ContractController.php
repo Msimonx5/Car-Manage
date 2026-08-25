@@ -137,16 +137,24 @@ class ContractController extends Controller
         $data['nombre_jours'] =
             max(1, $depart->diffInDays($retour));
 
+        // $data['total_ht'] =
+        //     $data['tarif_jour'] *
+        //     $data['nombre_jours'];
+
+        // $data['tva'] =
+        //     $data['total_ht'] * 0.20;
+
+        // $data['total_ttc'] =
+        //     $data['total_ht'] +
+        //     $data['tva'];
         $data['total_ht'] =
             $data['tarif_jour'] *
             $data['nombre_jours'];
 
-        $data['tva'] =
-            $data['total_ht'] * 0.20;
+        $data['tva'] = 0;
 
         $data['total_ttc'] =
-            $data['total_ht'] +
-            $data['tva'];
+            $data['total_ht'];
 
         /*
         |--------------------------------------------------------------------------
@@ -245,17 +253,24 @@ class ContractController extends Controller
                 $depart->diffInDays($retour)
             );
 
+        // $data['total_ht'] =
+        //     $data['tarif_jour'] *
+        //     $data['nombre_jours'];
+
+        // $data['tva'] =
+        //     $data['total_ht'] * 0.20;
+
+        // $data['total_ttc'] =
+        //     $data['total_ht'] +
+        //     $data['tva'];
         $data['total_ht'] =
             $data['tarif_jour'] *
             $data['nombre_jours'];
 
-        $data['tva'] =
-            $data['total_ht'] * 0.20;
+        $data['tva'] = 0;
 
         $data['total_ttc'] =
-            $data['total_ht'] +
-            $data['tva'];
-
+            $data['total_ht'];
         $previousVehicleId = $contract->vehicle_id;
 
         $contract->update($data);

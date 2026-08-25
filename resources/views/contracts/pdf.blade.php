@@ -157,6 +157,10 @@
     padding: 10px 2px 5px;
     border-top: 1px solid #000;
   }
+  .sign-space {
+    height: 15mm; /* espace vide réservé à la signature manuscrite */
+    width: 100%;
+  }
   .sign-right .sign-big {
     font-size: 13px;
     font-weight: bold;
@@ -277,14 +281,14 @@
           <div class="field">T.V.A (20%) : <span class="value">{{ number_format($contract->tva, 2, ',', ' ') }} DH</span></div>
           <div class="field">Total T.T.C : <span class="value">{{ number_format($contract->total_ttc, 2, ',', ' ') }} DH</span></div>
           <div class="field push-bottom">Mode De Règlement : <span class="value">{{ $contract->mode_paiement }}</span></div> --}}
-          <div class="field">Caution :</span></div>
-          <div class="field">Avance :</span></div>
-          <div class="field">Tarif / jour :</span></div>
-          <div class="field">Nombre de jours :</span></div>
-          <div class="field">Total H.T : <span class="value"></span></div>
-          <div class="field">T.V.A (20%) : <span class="value"></span></div>
-          <div class="field">Total T.T.C : <span class="value"></span></div>
-          <div class="field push-bottom">Mode De Règlement : <span class="value"></span></div>
+          <div class="field">Caution :<span class="value">**************</span></div>
+          <div class="field">Avance :<span class="value">**************</span></div>
+          <div class="field">Tarif / jour :<span class="value">**************</span></div>
+          <div class="field">Nombre de jours :<span class="value">**************</span></div>
+          <div class="field">Total H.T : <span class="value">**************</span></div>
+          <div class="field">T.V.A (20%) : <span class="value">**************</span></div>
+          <div class="field">Total T.T.C : <span class="value">**************</span></div>
+          <div class="field push-bottom">Mode De Règlement : <span class="value">**************</span></div>
         </div>
       </td>
     </tr>
@@ -298,7 +302,9 @@
             générales de location au verso du contrat et accepte
           </div>
           <div class="sign-row">Signature du locataire :</div>
+          <div class="sign-space"></div>
           <div class="sign-row">Signature du locataire :</div>
+          <div class="sign-space"></div>
         </div>
       </td>
 
@@ -306,6 +312,7 @@
       <td>
         <div class="box sign-right">
           <div class="sign-big">Signature Agent :</div>
+          <div class="sign-space"></div>
           <div class="sign-big obs-text">
             Observation : <span class="value">{{ $contract->observation ?? 'Aucune observation' }}</span>
           </div>
@@ -313,6 +320,6 @@
       </td>
     </tr>
   </table>
-
+@include('contracts.partials.conditions')
 </body>
 </html>

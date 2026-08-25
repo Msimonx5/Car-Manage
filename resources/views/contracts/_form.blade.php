@@ -149,19 +149,19 @@ document.addEventListener('DOMContentLoaded', function () {
     const tva     = document.getElementById('tva');
     const ttc     = document.getElementById('total_ttc');
 
-    function calcul() {
-        if (depart.value && retour.value) {
-            let d1 = new Date(depart.value);
-            let d2 = new Date(retour.value);
-            let diff = Math.ceil((d2 - d1) / (1000 * 60 * 60 * 24)) + 1;
-            diff = diff <= 0 ? 1 : diff;
-            jours.value = diff;
-            let total = diff * parseFloat(tarif.value || 0);
-            ht.value  = total.toFixed(2);
-            tva.value = (total * 0.20).toFixed(2);
-            ttc.value = (total * 1.20).toFixed(2);
-        }
+function calcul() {
+    if (depart.value && retour.value) {
+        let d1 = new Date(depart.value);
+        let d2 = new Date(retour.value);
+        let diff = Math.ceil((d2 - d1) / (1000 * 60 * 60 * 24)) + 1;
+        diff = diff <= 0 ? 1 : diff;
+        jours.value = diff;
+        let total = diff * parseFloat(tarif.value || 0);
+        ht.value  = total.toFixed(2);
+        tva.value = "0.00";
+        ttc.value = total.toFixed(2);
     }
+}
 
     vehicle.addEventListener('change', function () {
         if (this.selectedOptions[0]) {

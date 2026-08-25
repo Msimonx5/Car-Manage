@@ -26,7 +26,7 @@ class ContractFactory extends Factory
 
         $totalHT = $tarifJour * $nombreJours;
 
-        $tva = round($totalHT * 0.20, 2);
+        $tva = round($totalHT * 0.00, 2);
 
         $totalTTC = $totalHT + $tva;
 
