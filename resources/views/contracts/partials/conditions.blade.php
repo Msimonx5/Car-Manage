@@ -9,13 +9,12 @@
 <style>
     .cgl-page-break {
         page-break-before: always;
+        width: 100%;
     }
 
     .cgl-page {
-        font-family: 'DejaVu Sans', Arial, sans-serif;
-        color: #111;
         width: 190mm;
-        padding: 3mm 0 1mm;
+        margin: 10mm auto 0 auto;
     }
 
     .cgl-title {

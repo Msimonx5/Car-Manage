@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Models\Contract;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Response;
-use Debugbar;
 
 class ContractPdfController extends Controller
 {

@@ -3,6 +3,14 @@
     $vehicle = $contract->vehicle;
     $driver = $contract->secondDriver;
     $isPdf = $isPdf ?? true; // sécurité si jamais non transmis par le contrôleur
+
+    // ===== Remplissage automatique des champs vides par des étoiles =====
+    $star = '**************';
+    $val = function ($v) use ($star) {
+        if ($v === null) return $star;
+        $v = trim((string) $v);
+        return $v === '' ? $star : $v;
+    };
 @endphp
 <!DOCTYPE html>
 <html lang="fr">
@@ -46,6 +54,7 @@
   }
   .brand-left img {
     width: 75mm;
+    max-height: 20mm;
   }
   .address {
     font-style: italic;
@@ -96,25 +105,49 @@
   }
 
   /* ============ GRID DE BOITES (table = compatible DomPDF) ============ */
+  /* Budget de la page A4 (zone utile 281mm après marges 8mm haut/bas) :
+     header ~28mm + titre ~10mm + date ~10mm = ~48mm déjà utilisés.
+     Reste ~233mm. On réserve 215mm aux 3 lignes de boîtes (+ 12mm de
+     border-spacing), avec une marge de sécurité de ~6mm pour ne jamais
+     dépasser une page. On fixe donc une hauteur RÉELLE (pas 1px, pas de
+     height sur <tr>) directement sur chaque <td> d'une même ligne :
+     c'est la seule façon fiable de contrôler la hauteur avec DomPDF. */
   .grid-table {
     width: 100%;
     border-collapse: separate;
     border-spacing: 3mm;
     table-layout: fixed;
+    page-break-inside: avoid;
   }
   .grid-table td {
     width: 50%;
     vertical-align: top;
   }
-
-  .box {
+  /* La bordure/le cadre arrondi est posé DIRECTEMENT sur le <td> (et non
+     sur un <div> interne en height:100%, qui provoquait le bug — DomPDF
+     résolvait ce pourcentage contre la hauteur de la PAGE entière au lieu
+     de celle de la cellule, faisant exploser chaque ligne sur sa propre
+     page). Les <td> d'une même ligne s'égalisent nativement en hauteur
+     dans un tableau : CLIENT/VOITURE (et DEUXIEME CONDUCTEUR/FRAIS)
+     obtiennent donc la même hauteur de façon fiable avec DomPDF. */
+  .boxed {
     border: 2px solid #000;
     border-radius: 22px;
-    padding: 5px 10px 8px;
+    padding: 6px 10px 8px;
+  }
+  .cell-row1,
+  .cell-row2 {
+    height: 74mm;
+  }
+  .cell-row3 {
+    height: 50mm;
+  }
+
+  .box {
   }
   .box-title {
     text-align: center;
-    font-size: 16px;
+    font-size: 14px;
     font-weight: bold;
     letter-spacing: 1px;
     margin-bottom: 5px;
@@ -123,15 +156,22 @@
     text-transform: uppercase;
   }
   .box-title.long {
-    font-size: 13px;
+    font-size: 12px;
     letter-spacing: 0.5px;
   }
 
+  /* Espacement compact mais lisible, calculé pour que les 10 champs de
+     CLIENT / DEUXIEME CONDUCTEUR tiennent dans les 80mm réservés. */
   .field {
-    font-size: 11.5px;
+    font-size: 10.5px;
     font-weight: bold;
     line-height: 1.2;
-    padding: 1px 0;
+    padding: 3px 0;
+  }
+  /* Boîtes avec moins de champs (VOITURE, FRAIS) : espacement plus large
+     pour occuper une hauteur comparable, sans dépasser les 80mm réservés. */
+  .box-sparse .field {
+    padding: 7px 0;
   }
 
   .value {
@@ -144,21 +184,21 @@
 
   /* ============ SIGNATURES ============ */
   .sign-left .note {
-    font-size: 10px;
+    font-size: 9px;
     font-weight: bold;
     font-style: italic;
     text-align: center;
-    line-height: 1.25;
-    padding: 2px 4px 9px;
+    line-height: 1.2;
+    padding: 2px 4px 5px;
   }
   .sign-row {
-    font-size: 12px;
+    font-size: 11px;
     font-weight: bold;
-    padding: 10px 2px 5px;
+    padding: 5px 2px 3px;
     border-top: 1px solid #000;
   }
   .sign-space {
-    height: 15mm; /* espace vide réservé à la signature manuscrite */
+    height: 11mm; /* espace vide réservé à la signature manuscrite */
     width: 100%;
   }
   .sign-right .sign-big {
@@ -195,7 +235,7 @@
                 ? public_path('brand-right.jpeg')
                 : asset('images/contracts/brand-right.png');
         @endphp
-        <img src="{{ $brandRightSrc }}" alt="STÉ SOULAMI CAR" style="width: 65mm;">
+        <img src="{{ $brandRightSrc }}" alt="STÉ SOULAMI CAR" style="width: 65mm; max-height: 20mm;">
       </td>
     </tr>
   </table>
@@ -210,68 +250,66 @@
 <table class="grid-table">
     <tr>
       <!-- ---------- CLIENT ---------- -->
-      <td>
+      <td class="cell-row1 boxed">
         <div class="box">
           <div class="box-title">CLIENT</div>
-          <div class="field">NOM : <span class="value">{{ $client->nom }}</span></div>
-          <div class="field">PRENOM : <span class="value">{{ $client->prenom }}</span></div>
+          <div class="field">NOM : <span class="value">{{ $val($client->nom) }}</span></div>
+          <div class="field">PRENOM : <span class="value">{{ $val($client->prenom) }}</span></div>
           <div class="field">
             Date &amp; Lieu de naissance :
-            <span class="value">{{ optional($client->date_naissance)->format('d/m/Y') }} - {{ $client->lieu_naissance }}</span>
+            <span class="value">{{ $val(optional($client->date_naissance)->format('d/m/Y')) }} - {{ $val($client->lieu_naissance) }}</span>
           </div>
-          <div class="field">Adresse : <span class="value">{{ $client->adresse }}</span></div>
-          <div class="field">N° C.I.N : <span class="value">{{ $client->cin }}</span></div>
-          <div class="field">Nationalité : <span class="value">{{ $client->nationalite }}</span></div>
-          <div class="field">N° Permis de conduite : <span class="value">{{ $client->numero_permis }}</span></div>
-          <div class="field">N° Passeport : <span class="value">{{ $client->passport }}</span></div>
-          <div class="field">Adresse à l'étranger : <span class="value">{{ $client->adresse_etranger }}</span></div>
-          <div class="field">Téléphone : <span class="value">{{ $client->telephone }}</span></div>
+          <div class="field">Adresse : <span class="value">{{ $val($client->adresse) }}</span></div>
+          <div class="field">N° C.I.N : <span class="value">{{ $val($client->cin) }}</span></div>
+          <div class="field">Nationalité : <span class="value">{{ $val($client->nationalite) }}</span></div>
+          <div class="field">N° Permis de conduite : <span class="value">{{ $val($client->numero_permis) }}</span></div>
+          <div class="field">N° Passeport : <span class="value">{{ $val($client->passport) }}</span></div>
+          <div class="field">Adresse à l'étranger : <span class="value">{{ $val($client->adresse_etranger) }}</span></div>
+          <div class="field">Téléphone : <span class="value">{{ $val($client->telephone) }}</span></div>
         </div>
       </td>
 
       <!-- ---------- VOITURE ---------- -->
-      <td>
-        <div class="box">
+      <td class="cell-row1 boxed">
+        <div class="box box-sparse">
           <div class="box-title">VOITURE</div>
-          <div class="field">Marque : <span class="value">{{ $vehicle->marque }} {{ $vehicle->modele }}</span></div>
-          <div class="field">Immatriculation : <span class="value">{{ $vehicle->immatriculation }}</span></div>
-          <div class="field">Date de départ : <span class="value">{{ $contract->date_depart->format('d/m/Y') }}</span></div>
-          <div class="field">Heure de départ : <span class="value">{{ \Carbon\Carbon::parse($contract->heure_depart)->format('H:i') }}</span></div>
-          <div class="field">Date de retour : <span class="value">{{ $contract->date_retour->format('d/m/Y') }}</span></div>
-          <div class="field">Heure de retour : <span class="value">{{ \Carbon\Carbon::parse($contract->heure_retour)->format('H:i') }}</span></div>
-          <div class="field">Km départ : <span class="value">{{ $contract->km_depart }}</span></div>
-          <div class="field">Km retour : <span class="value">{{ $contract->km_retour }}</span></div>
-          <div class="field">pronologation:</div>
+          <div class="field">Marque : <span class="value">{{ $val(trim(($vehicle->marque ?? '').' '.($vehicle->modele ?? ''))) }}</span></div>
+          <div class="field">Immatriculation : <span class="value">{{ $val($vehicle->immatriculation) }}</span></div>
+          <div class="field">Date de départ : <span class="value">{{ $val($contract->date_depart->format('d/m/Y')) }}</span></div>
+          <div class="field">Heure de départ : <span class="value">{{ $val(\Carbon\Carbon::parse($contract->heure_depart)->format('H:i')) }}</span></div>
+          <div class="field">Date de retour : <span class="value">{{ $val($contract->date_retour->format('d/m/Y')) }}</span></div>
+          <div class="field">Heure de retour : <span class="value">{{ $val(\Carbon\Carbon::parse($contract->heure_retour)->format('H:i')) }}</span></div>
+          <div class="field">Km départ : <span class="value">{{ $val($contract->km_depart) }}</span></div>
+          <div class="field">Km retour : <span class="value">{{ $val($contract->km_retour) }}</span></div>
+          <div class="field">pronologation : <span class="value">{{ $val($contract->prorogation ?? null) }}</span></div>
         </div>
       </td>
     </tr>
 
     <tr>
       <!-- ---------- DEUXIEME CONDUCTEUR ---------- -->
-      <td>
+      <td class="cell-row2 boxed">
         <div class="box">
           <div class="box-title long">DEUXIEME CONDUCTEUR</div>
-          <div class="field">NOM : <span class="value">{{ $driver->nom ?? '' }}</span></div>
-          <div class="field">PRENOM : <span class="value">{{ $driver->prenom ?? '' }}</span></div>
+          <div class="field">NOM : <span class="value">{{ $val($driver->nom ?? null) }}</span></div>
+          <div class="field">PRENOM : <span class="value">{{ $val($driver->prenom ?? null) }}</span></div>
           <div class="field">
             Date &amp; Lieu de naissance :
-            @if($driver)
-                <span class="value">{{ optional($driver->date_naissance)->format('d/m/Y') }} - {{ $driver->lieu_naissance }}</span>
-            @endif
+            <span class="value">{{ $val($driver ? optional($driver->date_naissance)->format('d/m/Y') : null) }} - {{ $val($driver->lieu_naissance ?? null) }}</span>
           </div>
-          <div class="field">Adresse : <span class="value">{{ $driver->adresse ?? '' }}</span></div>
-          <div class="field">N° C.I.N : <span class="value">{{ $driver->cin ?? '' }}</span></div>
-          <div class="field">Nationalité : <span class="value">{{ $driver->nationalite ?? '' }}</span></div>
-          <div class="field">N° Permis de conduite : <span class="value">{{ $driver->numero_permis ?? '' }}</span></div>
-          <div class="field">N° Passeport : <span class="value">{{ $driver->passport ?? '' }}</span></div>
-          <div class="field">Adresse à l'étranger : <span class="value">{{ $driver->adresse_etranger ?? '' }}</span></div>
-          <div class="field">Téléphone : <span class="value">{{ $driver->telephone ?? '' }}</span></div>
+          <div class="field">Adresse : <span class="value">{{ $val($driver->adresse ?? null) }}</span></div>
+          <div class="field">N° C.I.N : <span class="value">{{ $val($driver->cin ?? null) }}</span></div>
+          <div class="field">Nationalité : <span class="value">{{ $val($driver->nationalite ?? null) }}</span></div>
+          <div class="field">N° Permis de conduite : <span class="value">{{ $val($driver->numero_permis ?? null) }}</span></div>
+          <div class="field">N° Passeport : <span class="value">{{ $val($driver->passport ?? null) }}</span></div>
+          <div class="field">Adresse à l'étranger : <span class="value">{{ $val($driver->adresse_etranger ?? null) }}</span></div>
+          <div class="field">Téléphone : <span class="value">{{ $val($driver->telephone ?? null) }}</span></div>
         </div>
       </td>
 
       <!-- ---------- FRAIS ---------- -->
-      <td>
-        <div class="box">
+      <td class="cell-row2 boxed">
+        <div class="box box-sparse">
           <div class="box-title">FRAIS</div>
           {{-- <div class="field">Caution : <span class="value">{{ number_format($contract->caution, 2, ',', ' ') }} DH</span></div>
           <div class="field">Avance : <span class="value">{{ number_format($contract->avance, 2, ',', ' ') }} DH</span></div>
@@ -295,7 +333,7 @@
 
     <tr>
       <!-- ---------- SIGNATURE LOCATAIRE ---------- -->
-      <td>
+      <td class="cell-row3 boxed">
         <div class="box sign-left">
           <div class="note">
             Je connais avoir prix connaissance des conditions
@@ -309,7 +347,7 @@
       </td>
 
       <!-- ---------- SIGNATURE AGENT ---------- -->
-      <td>
+      <td class="cell-row3 boxed">
         <div class="box sign-right">
           <div class="sign-big">Signature Agent :</div>
           <div class="sign-space"></div>

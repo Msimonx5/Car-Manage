@@ -88,7 +88,7 @@
   <div class="auth-left">
     <div class="al-brand">
       <div class="logo"><i class="bi bi-car-front-fill"></i></div>
-      <div><b>SOULAMI CAR</b><span>Location de voiture</span></div>
+      <div><b>Gestion location</b><span>Location de voiture</span></div>
     </div>
 
     <div class="al-hero">
