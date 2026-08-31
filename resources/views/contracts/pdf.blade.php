@@ -137,10 +137,10 @@
   }
   .cell-row1,
   .cell-row2 {
-    height: 74mm;
+    height: 85mm;
   }
   .cell-row3 {
-    height: 50mm;
+    height: 53mm;
   }
 
   .box {
@@ -347,13 +347,27 @@
       </td>
 
       <!-- ---------- SIGNATURE AGENT ---------- -->
+<!-- ---------- SIGNATURE AGENT ---------- -->
       <td class="cell-row3 boxed">
-        <div class="box sign-right">
-          <div class="sign-big">Signature Agent :</div>
-          <div class="sign-space"></div>
-          <div class="sign-big obs-text">
-            Observation : <span class="value">{{ $contract->observation ?? 'Aucune observation' }}</span>
+        <div class="box">
+          <!-- On crée un espace vide pour s'aligner sur la "Note" du locataire à gauche -->
+          <div style="height: 25px;"></div> 
+
+          <!-- On enlève la classe 'sign-row' ici pour supprimer la bordure du haut -->
+          <!-- On garde les styles de police et de padding manuellement -->
+          <div style="font-size: 11px; font-weight: bold; padding: 5px 2px 3px;">
+            Signature Agent :
           </div>
+          <div class="sign-space"></div>
+          
+          <!-- On garde 'sign-row' ici pour créer la ligne de séparation au milieu -->
+          {{-- <div class="sign-row">
+            Observation : <span class="value">{{ $val($contract->observation) }}</span>
+          </div> --}}
+          <div class="sign-row">
+            Observation :
+          </div>
+          <div class="sign-space"></div>
         </div>
       </td>
     </tr>

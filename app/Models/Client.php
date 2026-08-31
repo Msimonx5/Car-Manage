@@ -19,12 +19,15 @@ class Client extends Model
         'date_naissance',
         'lieu_naissance',
         'adresse',
+        'ville',
+        'code_postal',
         'cin',
         'nationalite',
         'numero_permis',
         'numero_passeport',
         'adresse_etranger',
         'telephone',
+        'email',
     ];
 
     protected $casts = [
@@ -56,5 +59,10 @@ class Client extends Model
     public function getFullNameAttribute(): string
     {
         return "{$this->nom} {$this->prenom}";
+    }
+
+    public function infractions()
+    {
+        return $this->hasMany(Infraction::class);
     }
 }

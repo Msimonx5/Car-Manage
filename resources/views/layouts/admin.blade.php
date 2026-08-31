@@ -222,6 +222,8 @@
     <i class="bi bi-car-front"></i> Véhicules</a>
   <a class="nav-item {{ request()->routeIs('contracts.*') ? 'active' : '' }}" href="{{ route('contracts.index') }}">
     <i class="bi bi-file-earmark-text"></i> Contrats</a>
+  <a class="nav-item {{ request()->routeIs('infractions.*') ? 'active' : '' }}" href="{{ route('infractions.index') }}">
+    <i class="bi bi-exclamation-triangle"></i> Infractions</a>
 
   <div class="nav-label">Système</div>
   <a class="nav-item" href="#"><i class="bi bi-gear"></i> Paramètres</a>

@@ -131,11 +131,10 @@ class ContractController extends Controller
         |--------------------------------------------------------------------------
         */
 
-        $depart = Carbon::parse($data['date_depart']);
-        $retour = Carbon::parse($data['date_retour']);
+        $depart = Carbon::parse($data['date_depart'])->startOfDay();
+        $retour = Carbon::parse($data['date_retour'])->startOfDay();
 
-        $data['nombre_jours'] =
-            max(1, $depart->diffInDays($retour));
+        $data['nombre_jours'] = max(1, $depart->diffInDays($retour));
 
         // $data['total_ht'] =
         //     $data['tarif_jour'] *
@@ -243,15 +242,10 @@ class ContractController extends Controller
 
         $data = $request->validated();
 
-        $depart = Carbon::parse($data['date_depart']);
+    $depart = Carbon::parse($data['date_depart'])->startOfDay();
+    $retour = Carbon::parse($data['date_retour'])->startOfDay();
 
-        $retour = Carbon::parse($data['date_retour']);
-
-        $data['nombre_jours'] =
-            max(
-                1,
-                $depart->diffInDays($retour)
-            );
+    $data['nombre_jours'] = max(1, $depart->diffInDays($retour));
 
         // $data['total_ht'] =
         //     $data['tarif_jour'] *

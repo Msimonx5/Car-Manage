@@ -258,4 +258,9 @@ class Vehicle extends Model
     {
         return $this->statut === VehicleStatus::MAINTENANCE;
     }
+
+    public function infractions()
+    {
+        return $this->hasMany(Infraction::class);
+    }
 }

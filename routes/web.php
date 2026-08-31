@@ -11,6 +11,8 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Vehicle\VehicleController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\User\UserRoleController;
+use App\Http\Controllers\InfractionController;
+use App\Http\Controllers\InfractionPdfController;
 
 /*
 |--------------------------------------------------------------------------
@@ -87,6 +89,24 @@ Route::middleware('auth')->group(function () {
 
         });
 
+    Route::prefix('infractions/{infraction}/pdf')
+        ->name('infractions.pdf.')
+        ->group(function () {
+
+            Route::get('preview', [InfractionPdfController::class, 'preview'])
+                ->name('preview');
+
+            Route::get('download', [InfractionPdfController::class, 'download'])
+                ->name('download');
+
+            Route::get('stream', [InfractionPdfController::class, 'streamPdf'])
+                ->name('stream');
+
+    });
+
+
+        Route::resource('infractions', InfractionController::class);
+
 });
 
 
@@ -95,6 +115,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/users/{user}/roles', [UserRoleController::class, 'edit'])->name('users.roles.edit');
         Route::put('/users/{user}/roles', [UserRoleController::class, 'update'])->name('users.roles.update');
     });
+
+        
 
 
 require __DIR__.'/auth.php';

@@ -27,6 +27,8 @@ class ClientFactory extends Factory
             'lieu_naissance' => fake()->city(),
 
             'adresse' => fake()->address(),
+            'ville' => fake()->city(),
+            'code_postal' => fake()->postcode(),
 
             'cin' => strtoupper(fake()->unique()->bothify('??######')),
 
@@ -43,6 +45,7 @@ class ClientFactory extends Factory
             'adresse_etranger' => null,
 
             'telephone' => fake()->phoneNumber(),
+            'email' => fake()->unique()->safeEmail(),
         ];
     }
 }

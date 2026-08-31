@@ -123,11 +123,20 @@ class Contract extends Model
             : '-';
     }
 
-    public function getDurationAttribute(): int
-    {
-        return $this->date_depart
-            ->diffInDays($this->date_retour) + 1;
-    }
+// NEW — add this method anywhere in the class, e.g. right after getVehicleNameAttribute()
+        public static function calculateDays($depart, $retour): int
+        {
+            $depart = \Illuminate\Support\Carbon::parse($depart)->startOfDay();
+            $retour = \Illuminate\Support\Carbon::parse($retour)->startOfDay();
+
+            return max(1, $depart->diffInDays($retour));
+        }
+
+        // MODIFIED — replace your existing getDurationAttribute()
+        public function getDurationAttribute(): int
+        {
+            return static::calculateDays($this->date_depart, $this->date_retour);
+        }
 
     /**
      * Instant exact de retour prévu (date + heure).
@@ -295,5 +304,10 @@ class Contract extends Model
                 });
 
             });
+    }
+
+    public function infractions()
+    {
+        return $this->hasMany(Infraction::class);
     }
 }

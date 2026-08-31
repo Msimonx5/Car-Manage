@@ -153,7 +153,7 @@ function calcul() {
     if (depart.value && retour.value) {
         let d1 = new Date(depart.value);
         let d2 = new Date(retour.value);
-        let diff = Math.ceil((d2 - d1) / (1000 * 60 * 60 * 24)) + 1;
+        let diff = Math.round((d2 - d1) / (1000 * 60 * 60 * 24));
         diff = diff <= 0 ? 1 : diff;
         jours.value = diff;
         let total = diff * parseFloat(tarif.value || 0);

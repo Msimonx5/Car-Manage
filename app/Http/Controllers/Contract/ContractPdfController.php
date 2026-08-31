@@ -68,4 +68,17 @@ class ContractPdfController extends Controller
             'Contrat-'.$contract->numero.'.pdf'
         );
     }
+
+    public function declarationPrealable(Contract $contract)
+    {
+        $contract->load(['client', 'vehicle']);
+
+        $pdf = Pdf::loadView('contracts.declaration-prealable', [
+            'contract'    => $contract,
+            'agenceNom'   => 'SOULAMI CAR',
+            'agenceVille' => 'KHOURIBGA',
+        ]);
+
+        return $pdf->stream('declaration-'.$contract->numero.'.pdf');
+    }
 }

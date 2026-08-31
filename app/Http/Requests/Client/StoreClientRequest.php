@@ -55,6 +55,16 @@ class StoreClientRequest extends FormRequest
                 'string',
                 'max:500',
             ],
+            'ville' => [
+                'nullable',
+                'string',
+                'max:100',
+            ],
+            'code_postal' => [
+                'nullable',
+                'string',
+                'max:20',
+            ],
 
             'cin' => [
                 'required',
@@ -93,6 +103,13 @@ class StoreClientRequest extends FormRequest
                 'required',
                 'string',
                 'max:20',
+            ],
+            'email' => [
+                'nullable',
+                'string',
+                'email',
+                'max:150',
+                'unique:clients,email',
             ],
 
         ];
