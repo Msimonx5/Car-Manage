@@ -44,7 +44,9 @@
     <div class="section-title"><i class="bi bi-geo-alt"></i> Coordonnées</div>
     <table class="detail">
         <tr><th>Téléphone</th><td>{{ $client->telephone }}</td></tr>
+        <tr><th>Email</th><td>{{ $client->email }}</td></tr>
         <tr><th>Adresse</th><td>{{ $client->adresse ?: '—' }}</td></tr>
+        <tr><th>Ville</th><td>{{ $client->ville ?: '—' }}</td></tr>
         <tr><th>Adresse à l'étranger</th><td>{{ $client->adresse_etranger ?: '—' }}</td></tr>
     </table>
 </div>
