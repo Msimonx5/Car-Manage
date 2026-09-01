@@ -54,14 +54,14 @@
     >
         <i class="bi bi-pencil"></i>
         Modifier
-    {{-- </a>
+    </a>
         <a href="{{ route('infractions.pdf.preview', $infraction) }}" target="_blank" class="btn btn-light">
         <i class="bi bi-eye"></i> Aperçu
     </a>
 
     <a href="{{ route('infractions.pdf.download', $infraction) }}" class="btn-brand">
         <i class="bi bi-download"></i> Télécharger
-    </a> --}}
+    </a>
 
 </div>
 ```

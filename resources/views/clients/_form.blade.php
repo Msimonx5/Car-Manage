@@ -79,11 +79,11 @@
         <textarea name="adresse" rows="2" class="form-control @error('adresse') is-invalid @enderror">{{ old('adresse', $client->adresse ?? '') }}</textarea>
         @error('adresse')<div class="invalid-feedback">{{ $message }}</div>@enderror
     </div>
-    <dialog class="col-md-4 mb-3">
+    <div class="col-md-6 mb-3">
         <label class="form-label">Ville</label>
         <input type="text" name="ville" class="form-control @error('ville') is-invalid @enderror" value="{{ old('ville', $client->ville ?? '') }}">
         @error('ville')<div class="invalid-feedback">{{ $message }}</div>@enderror
-    </dialog>
+    </div>
     <div class="col-md-4 mb-3">
         <label class="form-label">Code postal</label>
         <input type="text" name="code_postal" class="form-control @error('code_postal') is-invalid @enderror" value="{{ old('code_postal', $client->code_postal ?? '') }}">

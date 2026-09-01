@@ -3,19 +3,17 @@
 namespace App\Http\Controllers;
 
 use App\Models\Infraction;
-use Barryvdh\DomPDF\Facade\Pdf;
-use Illuminate\Http\Response;
-use Symfony\Component\HttpFoundation\StreamedResponse;
-use App\Models\Contract;
+use Spatie\LaravelPdf\Facades\Pdf;
+use Spatie\LaravelPdf\PdfBuilder;
 
 class InfractionPdfController extends Controller
 {
     /**
      * --------------------------------------------------------------------------
-     * Génère l'instance PDF (commun aux 3 modes)
+     * Génère l'instance PDF
      * --------------------------------------------------------------------------
      */
-    private function buildPdf(Infraction $infraction)
+    private function buildPdf(Infraction $infraction): PdfBuilder
     {
         $infraction->load([
             'client',
@@ -23,13 +21,10 @@ class InfractionPdfController extends Controller
             'contract',
         ]);
 
-        $pdf = Pdf::loadView('infractions.pdf', [
+        return Pdf::view('infractions.pdf', [
             'infraction' => $infraction,
-        ]);
-
-        $pdf->setPaper('a4', 'portrait');
-
-        return $pdf;
+        ])
+        ->format('a4');
     }
 
     /**
@@ -41,60 +36,44 @@ class InfractionPdfController extends Controller
     {
         $numero = $infraction->numero_contrat ?: $infraction->id;
 
-        return 'infraction-' . str_replace(['/', '\\', ' '], '-', $numero) . '.pdf';
+        return 'infraction-' .
+            str_replace(['/', '\\', ' '], '-', $numero) .
+            '.pdf';
     }
 
     /**
      * --------------------------------------------------------------------------
-     * Preview : ouvre le PDF dans un nouvel onglet (inline)
+     * Preview
      * --------------------------------------------------------------------------
      */
-    public function preview(Infraction $infraction): Response
+    public function preview(Infraction $infraction)
     {
-        $pdf = $this->buildPdf($infraction);
-
-        return $pdf->stream(
-            $this->fileName($infraction)
-        );
+        return $this->buildPdf($infraction)
+            ->name($this->fileName($infraction))
+            ->inline();
     }
 
     /**
      * --------------------------------------------------------------------------
-     * Download : force le téléchargement du fichier
+     * Download
      * --------------------------------------------------------------------------
      */
-    public function download(Infraction $infraction): Response
+    public function download(Infraction $infraction)
     {
-        $pdf = $this->buildPdf($infraction);
-
-        return $pdf->download(
-            $this->fileName($infraction)
-        );
+        return $this->buildPdf($infraction)
+            ->name($this->fileName($infraction))
+            ->download();
     }
 
     /**
      * --------------------------------------------------------------------------
-     * Stream : renvoie le flux binaire brut (utile pour affichage
-     * dans un <iframe>, un lecteur JS, ou un appel API/AJAX)
+     * Stream / affichage inline
      * --------------------------------------------------------------------------
      */
-    public function streamPdf(Infraction $infraction): StreamedResponse
+    public function streamPdf(Infraction $infraction)
     {
-        $pdf = $this->buildPdf($infraction);
-
-        $fileName = $this->fileName($infraction);
-
-        return response()->streamDownload(
-            function () use ($pdf) {
-                echo $pdf->output();
-            },
-            $fileName,
-            [
-                'Content-Type' => 'application/pdf',
-                'Content-Disposition' => 'inline; filename="' . $fileName . '"',
-            ]
-        );
+        return $this->buildPdf($infraction)
+            ->name($this->fileName($infraction))
+            ->inline();
     }
-
-
 }
