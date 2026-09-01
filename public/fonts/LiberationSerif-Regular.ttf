@@ -1,0 +1,14 @@
+@font-face {
+    font-family: 'DocSerif';
+    src: url('{{ public_path('fonts/LiberationSerif-Regular.ttf') }}') format('truetype');
+    font-weight: normal;
+}
+@font-face {
+    font-family: 'DocSerif';
+    src: url('{{ public_path('fonts/LiberationSerif-Bold.ttf') }}') format('truetype');
+    font-weight: bold;
+}
+
+body {
+    font-family: 'DocSerif', serif;
+}
