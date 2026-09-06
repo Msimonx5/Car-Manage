@@ -9,7 +9,7 @@
         body { font-family: "Times New Roman", Times, serif; margin: 0; padding: 0; background-color: #f0f0f0; color: #000; }
         .no-print-btn { position: fixed; top: 20px; right: 20px; padding: 12px 24px; background-color: #1a3c72; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; box-shadow: 0 4px 6px rgba(0,0,0,0.1); z-index: 1000; }
         .no-print-btn:hover { background-color: #122b54; }
-        .main-wrapper { width: 210mm; min-height: 297mm; margin: 20px auto; padding: 10mm; background-color: #fff; box-shadow: 0 0 10px rgba(0,0,0,0.1); box-sizing: border-box; }
+        .main-wrapper { width: 210mm; min-height: 290mm; margin: 0 auto; padding: 10mm; background-color: #fff; box-shadow: 0 0 10px rgba(0,0,0,0.1); box-sizing: border-box; }
         .header-banner { display: flex; justify-content: space-between; align-items: center; background-color: #eeeeee !important; padding: 8px 15px; text-align: center; border: 1px solid #000; border-bottom: none; }
         .header-left, .header-right { width: 40%; font-size: 11px; line-height: 1.2; }
         .header-left strong { font-size: 13px; }
@@ -33,23 +33,61 @@
         .plate-border { border: 2.5px solid #000; display: inline-block; padding: 3px 15px; font-weight: bold; font-size: 16px; color: #1a3c72; margin-bottom: 3px; }
         .company-name { display: block; color: #1a3c72; font-weight: bold; font-size: 12px; }
         .line-segment { height: 1px; border-bottom: 0.5px solid #666; width: 48%; margin: 5px 0; }
+        .line-row { margin: 0 0 22px 0; }
+        .line-row:first-child { margin-top: 6px; }
+        .line-row:last-child { margin-bottom: 4px; }
+        .line-row .line-segment { margin: 0; }
         .signature-row td { height: 160px; vertical-align: top !important; padding: 10px; }
         .sig-box-left { width: 65%; text-align: center; border-right: 1.2px solid #000; }
         .sig-box-right { width: 35%; }
         .no-side-borders { border-left: none; border-right: none; }
+        /* --- Écran de chargement (le document reste masqué pendant le remplissage) --- */
+        body.is-generating { overflow: hidden; }
+        #pdf-loader { position: fixed; inset: 0; z-index: 99999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px; background: #f6f7fb; font-family: Arial, Helvetica, sans-serif; }
+        #pdf-loader.hidden { display: none; }
+        #pdf-loader .spinner { width: 54px; height: 54px; border: 5px solid #dfe3ee; border-top-color: #1a3c72; border-radius: 50%; animation: pdf-spin 0.9s linear infinite; }
+        @keyframes pdf-spin { to { transform: rotate(360deg); } }
+        #pdf-loader .loader-title { font-size: 17px; font-weight: bold; color: #1a3c72; margin: 0; }
+        #pdf-loader .loader-status { font-size: 13px; color: #5a6478; margin: 0; min-height: 18px; }
+        #pdf-loader .loader-error { display: none; max-width: 420px; text-align: center; color: #b3261e; font-size: 13px; line-height: 1.5; }
+        #pdf-loader.has-error .spinner, #pdf-loader.has-error .loader-status { display: none; }
+        #pdf-loader.has-error .loader-title { color: #b3261e; }
+        #pdf-loader.has-error .loader-error { display: block; }
+        #pdf-loader.has-error .retry-btn { display: inline-block; }
+        #pdf-loader .retry-btn { display: none; margin-top: 6px; padding: 9px 18px; background: #1a3c72; color: #fff; border: none; border-radius: 5px; font-size: 13px; cursor: pointer; }
     </style>
 </head>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <script>
+const loader = {
+    el: null,
+    status(text) {
+        if (!this.el) this.el = document.getElementById('pdf-loader');
+        const s = this.el && this.el.querySelector('.loader-status');
+        if (s) s.textContent = text;
+    },
+    fail(message) {
+        if (!this.el) this.el = document.getElementById('pdf-loader');
+        if (!this.el) return;
+        this.el.classList.add('has-error');
+        this.el.querySelector('.loader-title').textContent = "Impossible de générer le document";
+        this.el.querySelector('.loader-error').textContent = message;
+    }
+};
+
 document.addEventListener('DOMContentLoaded', async () => {
     const infractionId = {{ $id }};
+    document.body.classList.add('is-generating');
 
     try {
+        loader.status('Récupération des données…');
         const response = await fetch(`/api/infractionsapi/${infractionId}`);
         if (!response.ok) throw new Error('Erreur API: ' + response.status);
 
         const json = await response.json();
         const infraction = json.data; // <-- structure plate, une seule clé "data"
+
+        loader.status('Remplissage du document…');
 
         // Client
         document.getElementById('client-nom').textContent = infraction.nom ?? '';
@@ -57,13 +95,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.getElementById('client-cin').textContent = infraction.cin ?? '';
         document.getElementById('client-permis').textContent = infraction.numero_permis ?? '';
         document.getElementById('client-adresse').textContent = infraction.adresse ?? '';
-        document.getElementById('client-ville').textContent = infraction.ville ?? '';
+        document.getElementById('client-ville').textContent = valeurOuDefaut(infraction.ville, VILLE_PAR_DEFAUT);
         document.getElementById('client-telephone').textContent = infraction.telephone ?? '';
         document.getElementById('client-email').textContent = infraction.email ?? '';
 
         // Code postal en petites cases
         const postalContainer = document.getElementById('postal-container');
-        (infraction.code_postal ?? '').split('').forEach(digit => {
+        valeurOuDefaut(infraction.code_postal, CODE_POSTAL_PAR_DEFAUT).split('').forEach(digit => {
             const box = document.createElement('div');
             box.className = 'postal-box';
             box.textContent = digit;
@@ -82,17 +120,55 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.getElementById('date-retour-top').textContent = infraction.date_retour ?? '';
         document.getElementById('date-retour').textContent = infraction.date_retour ?? '';
         document.getElementById('heure-retour').textContent = infraction.heure_retour ?? '';
-        document.getElementById('lieu-constat').textContent = infraction.ville ?? '';
+        document.getElementById('lieu-constat').textContent = VILLE_AGENCE;
         document.getElementById('date-signature').textContent = infraction.created_at ?? '';
 
-        genererEtOuvrirPdf();
+        preparerTexteArabe();
+        await attendreImages();
+        await genererEtOuvrirPdf();
     } catch (error) {
         console.error(error);
-        alert("Impossible de charger les données de l'infraction : " + error.message);
+        loader.fail(error.message);
     }
 });
 
+// html2canvas perd les espaces des textes RTL (« الاسم العائلي » devient « الاسمالعائلي »).
+// On remplace les espaces des textes arabes par des espaces insecables, que le rendu conserve.
+// « Fait à » désigne le lieu de rédaction du document, c'est-à-dire la ville de l'agence.
+const VILLE_AGENCE = 'KHOURIBGA';
+
+// Valeurs fixes utilisées quand la fiche client ne renseigne ni ville ni code postal.
+const VILLE_PAR_DEFAUT = 'KHOURIBGA';
+const CODE_POSTAL_PAR_DEFAUT = '25000';
+
+function valeurOuDefaut(valeur, defaut) {
+    return (valeur ?? '').toString().trim() || defaut;
+}
+
+const REGEX_ARABE = /[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\uFB50-\uFDFF\uFE70-\uFEFF]/;
+
+function preparerTexteArabe() {
+    const racine = document.getElementById('page-content');
+    const parcours = document.createTreeWalker(racine, NodeFilter.SHOW_TEXT);
+    let noeud;
+    while ((noeud = parcours.nextNode())) {
+        if (REGEX_ARABE.test(noeud.nodeValue) && noeud.nodeValue.includes(' ')) {
+            noeud.nodeValue = noeud.nodeValue.replace(/ /g, '\u00A0');
+        }
+    }
+}
+
+// Évite un PDF avec un logo manquant : on attend le chargement des images.
+function attendreImages() {
+    const images = Array.from(document.querySelectorAll('#page-content img'));
+    return Promise.all(images.map(img => img.complete
+        ? Promise.resolve()
+        : new Promise(resolve => { img.onload = img.onerror = resolve; })
+    ));
+}
+
 function genererEtOuvrirPdf() {
+    loader.status('Génération du PDF…');
     const element = document.getElementById('page-content');
 
     const options = {
@@ -103,13 +179,40 @@ function genererEtOuvrirPdf() {
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
     };
 
-    html2pdf().set(options).from(element).outputPdf('blob').then((blob) => {
-        const url = URL.createObjectURL(blob);
+    return html2pdf().set(options).from(element).toPdf().get('pdf').then((pdf) => {
+        supprimerPagesEnTrop(pdf, element);
+        loader.status('Ouverture du document…');
+        const url = URL.createObjectURL(pdf.output('blob'));
         window.location.href = url;
     });
 }
+
+// Le formulaire DPL1 tient sur une seule page A4. html2pdf ajoute une seconde
+// page vide des que le rendu depasse la hauteur de page, meme d'une fraction de
+// millimetre : on la retire. Un debordement reel (contenu en trop) est conserve.
+function supprimerPagesEnTrop(pdf, element) {
+    const PX_PAR_MM = 96 / 25.4;
+    const hauteurRendue = element.getBoundingClientRect().height / PX_PAR_MM;
+    const hauteurPage = pdf.internal.pageSize.getHeight();
+
+    if (hauteurRendue - hauteurPage > 15) {
+        return;
+    }
+
+    for (let page = pdf.internal.getNumberOfPages(); page > 1; page--) {
+        pdf.deletePage(page);
+    }
+}
 </script>
 <body>
+
+<div id="pdf-loader">
+    <div class="spinner"></div>
+    <p class="loader-title">Préparation de la déclaration…</p>
+    <p class="loader-status">Chargement…</p>
+    <div class="loader-error"></div>
+    <button type="button" class="retry-btn" onclick="window.location.reload()">Réessayer</button>
+</div>
 
 {{-- <button class="no-print-btn" onclick="generatePDF()">Télécharger / Ouvrir en PDF</button> --}}
 
@@ -153,10 +256,16 @@ function genererEtOuvrirPdf() {
                 </div>
             </td>
         </tr>
-        <tr><td colspan="6" style="padding: 0 15px 10px 15px; border-top: none;"><div class="flex-row"><div class="line-segment"></div><div class="line-segment"></div></div></td></tr>
+        <tr>
+            <td colspan="6" style="padding: 0 15px 10px 15px; border-top: none;">
+                <div class="flex-row line-row"><div class="line-segment"></div><div class="line-segment"></div></div>
+                <div class="flex-row line-row"><div class="line-segment"></div><div class="line-segment"></div></div>
+                <div class="flex-row line-row"><div class="line-segment"></div><div class="line-segment"></div></div>
+            </td>
+        </tr>
 
         <!-- Dates -->
-        <tr><td colspan="6" class="no-side-borders"><div class="flex-row"><span>Du :</span><span class="arabic">من :</span></div></td></tr>
+        <tr><td colspan="6" class="no-side-borders"><div class="flex-row"><span>Du :</span><span class="arabic"> :من  </span></div></td></tr>
         <tr><td colspan="6" class="no-side-borders"><div class="flex-row"><div style="width: 35%;">Jour / Heure emprunt</div><div class="value" style="flex-grow:1; text-align:center;"><span id="date-depart"></span> - <span id="heure-depart"></span></div><div class="arabic" style="width: 35%;">يوم وساعة التسلم</div></div></td></tr>
         <tr><td colspan="6" class="no-side-borders"><div class="flex-row"><span>Au : <span id="date-retour-top" class="value"></span></span><span class="arabic">إلى :</span></div></td></tr>
         <tr><td colspan="6" class="no-side-borders"><div class="flex-row"><div style="width: 35%;">Jour / Heure restitution</div><div class="value" style="flex-grow:1; text-align:center;"><span id="date-retour"></span> - <span id="heure-retour"></span></div><div class="arabic" style="width: 35%;">يوم وساعة الإعادة</div></div></td></tr>

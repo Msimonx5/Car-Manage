@@ -25,6 +25,17 @@
     </div>
 
     <div class="mb-3">
+        <label class="form-label">Nom de l'agence</label>
+        <div class="input-ico">
+            <i class="bi bi-building"></i>
+            <input type="text" name="agence" value="{{ old('agence') }}"
+                   class="form-control @error('agence') is-invalid @enderror" placeholder="Nom de votre agence">
+        </div>
+        <div class="form-text">Vos données (clients, véhicules, contrats) seront propres à cette agence.</div>
+        @error('agence')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
+    </div>
+
+    <div class="mb-3">
         <label class="form-label">Adresse email</label>
         <div class="input-ico">
             <i class="bi bi-envelope"></i>

@@ -53,12 +53,10 @@
             <i class="bi bi-download"></i>
             Télécharger
         </a> --}}
-        <!-- Bouton à mettre n'importe où dans votre page show.blade.php -->
-                        <td style="text-align:right;white-space:nowrap">
-                            <a href="{{ route('infractions.pdf', $infraction->id) }}" target="_blank" class="btn btn-primary">
-                                Voir le PDF
-                            </a>
-                        </td>
+        <a href="{{ route('infractions.pdf', $infraction->id) }}" target="_blank"
+           class="btn-soft icon-only" title="Voir le PDF">
+            <i class="bi bi-file-earmark-pdf"></i>
+        </a>
     </div>
 </div>
 

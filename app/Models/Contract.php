@@ -7,12 +7,13 @@ use App\Enums\VehicleStatus;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Models\Concerns\BelongsToTenant;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Support\Facades\DB;
 
 class Contract extends Model
 {
-    use HasFactory, SoftDeletes;
+    use BelongsToTenant, HasFactory, SoftDeletes;
 
     protected $fillable = [
 

@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -34,12 +35,20 @@ class InfractionResource extends JsonResource
 
             // Contract Data
             'numero_contrat' => $this->numero_contrat,
-            'date_depart' => $this->date_depart,
-            'heure_depart' => $this->heure_depart,
-            'date_retour' => $this->date_retour,
-            'heure_retour' => $this->heure_retour,
+            'date_depart' => $this->date_depart?->format('d/m/Y'),
+            'heure_depart' => $this->formatHeure($this->heure_depart),
+            'date_retour' => $this->date_retour?->format('d/m/Y'),
+            'heure_retour' => $this->formatHeure($this->heure_retour),
             
-            'created_at' => $this->created_at->format('d/m/Y'),
+            'created_at' => $this->created_at?->format('d/m/Y'),
         ];
+    }
+
+    /**
+     * Normalise une heure stockée ("08:00:00") vers un affichage court ("08:00").
+     */
+    private function formatHeure(?string $heure): ?string
+    {
+        return $heure ? Carbon::parse($heure)->format('H:i') : null;
     }
 }

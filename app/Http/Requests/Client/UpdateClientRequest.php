@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Client;
 
+use App\Support\Tenancy;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -63,7 +64,7 @@ class UpdateClientRequest extends FormRequest
                 'required',
                 'string',
                 'max:20',
-                Rule::unique('clients', 'cin')->ignore($client),
+                Rule::unique('clients', 'cin')->ignore($client)->where('tenant_id', Tenancy::currentId()),
             ],
 
             'nationalite' => [
@@ -76,14 +77,14 @@ class UpdateClientRequest extends FormRequest
                 'required',
                 'string',
                 'max:50',
-                Rule::unique('clients', 'numero_permis')->ignore($client),
+                Rule::unique('clients', 'numero_permis')->ignore($client)->where('tenant_id', Tenancy::currentId()),
             ],
 
             'numero_passeport' => [
                 'nullable',
                 'string',
                 'max:50',
-                Rule::unique('clients', 'numero_passeport')->ignore($client),
+                Rule::unique('clients', 'numero_passeport')->ignore($client)->where('tenant_id', Tenancy::currentId()),
             ],
 
             'adresse_etranger' => [

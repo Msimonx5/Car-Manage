@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Vehicle;
 
 use App\Enums\VehicleStatus;
+use App\Support\Tenancy;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -29,14 +30,14 @@ class StoreVehicleRequest extends FormRequest
                 'required',
                 'string',
                 'max:50',
-                'unique:vehicles'
+                Rule::unique('vehicles', 'immatriculation')->where('tenant_id', Tenancy::currentId())
             ],
 
             'numero_chassis'=>[
                 'nullable',
                 'string',
                 'max:100',
-                'unique:vehicles'
+                Rule::unique('vehicles', 'numero_chassis')->where('tenant_id', Tenancy::currentId())
             ],
 
             'numero_moteur'=>[

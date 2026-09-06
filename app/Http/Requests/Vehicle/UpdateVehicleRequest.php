@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Vehicle;
 
 use App\Enums\VehicleStatus;
+use App\Support\Tenancy;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -67,14 +68,14 @@ class UpdateVehicleRequest extends FormRequest
                 'required',
                 'string',
                 'max:50',
-                Rule::unique('vehicles', 'immatriculation')->ignore($vehicle),
+                Rule::unique('vehicles', 'immatriculation')->ignore($vehicle)->where('tenant_id', Tenancy::currentId()),
             ],
 
             'numero_chassis' => [
                 'nullable',
                 'string',
                 'max:100',
-                Rule::unique('vehicles', 'numero_chassis')->ignore($vehicle),
+                Rule::unique('vehicles', 'numero_chassis')->ignore($vehicle)->where('tenant_id', Tenancy::currentId()),
             ],
 
             'numero_moteur' => [

@@ -110,6 +110,8 @@
   .btn-soft{background:#fff;border:1px solid var(--line);color:#4b5563;font-weight:600;
     border-radius:10px;padding:9px 16px;font-size:13.5px;display:inline-flex;align-items:center;gap:7px}
   .btn-soft:hover{background:#f4f5f7;color:var(--ink)}
+  /* variante icone seule : meme hauteur que les boutons voisins */
+  .btn-soft.icon-only,.btn-brand.icon-only{padding:9px;width:38px;justify-content:center;gap:0;font-size:15px}
 
   /* shared: form controls */
   .form-control,.form-select{border:1px solid var(--line);border-radius:10px;font-size:13.5px;
@@ -124,6 +126,7 @@
   .act.view:hover{background:var(--info-tint);color:#0369a1;border-color:transparent}
   .act.edit:hover{background:var(--warning-tint);color:#b26a02;border-color:transparent}
   .act.oil:hover{background:var(--info-tint);color:var(--info);border-color:transparent}
+  .act.pdf:hover{background:var(--danger-tint);color:var(--danger);border-color:transparent}
   .act.danger:hover{background:var(--danger-tint);color:var(--danger);border-color:transparent}
 
   /* shared: page header */
@@ -210,7 +213,7 @@
   </button>
   <div class="brand">
     <div class="logo"><i class="bi bi-car-front-fill"></i></div>
-    <div><b>Soulami Car</b><span>Location de voiture</span></div>
+    <div><b>{{ auth()->user()?->tenant?->name ?? 'Soulami Car' }}</b><span>Location de voiture</span></div>
   </div>
 
   <div class="nav-label">Menu</div>

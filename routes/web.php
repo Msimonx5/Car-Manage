@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\User\UserRoleController;
 use App\Http\Controllers\InfractionController;
 use App\Http\Controllers\InfractionPdfController;
+use App\Http\Controllers\Api\ApiInfractionController;
 
 /* 
 |--------------------------------------------------------------------------
@@ -100,6 +101,18 @@ Route::middleware('auth')->group(function () {
         Route::get('/infractions/{id}/pdf', function ($id) {
             return view('infractions.jspdf', ['id' => $id]);
         })->name('infractions.pdf');
+
+    /*
+    |--------------------------------------------------------------------------
+    | Donnees JSON de la declaration
+    |--------------------------------------------------------------------------
+    | Consommees par la page de generation du PDF. Declarees ici (et non dans
+    | routes/api.php) pour beneficier de la session : ces donnees client sont
+    | nominatives et ne doivent pas etre accessibles sans authentification.
+    */
+
+    Route::get('/api/infractionsapi/{infraction}', [ApiInfractionController::class, 'show']);
+    Route::get('/api/infractionsapi', [ApiInfractionController::class, 'index']);
 
 });
 
