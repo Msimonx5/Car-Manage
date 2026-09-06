@@ -14,7 +14,7 @@ use App\Http\Controllers\User\UserRoleController;
 use App\Http\Controllers\InfractionController;
 use App\Http\Controllers\InfractionPdfController;
 
-/*
+/* 
 |--------------------------------------------------------------------------
 | Accueil
 |--------------------------------------------------------------------------
@@ -89,34 +89,22 @@ Route::middleware('auth')->group(function () {
 
         });
 
-    Route::prefix('infractions/{infraction}/pdf')
-        ->name('infractions.pdf.')
-        ->group(function () {
-
-            Route::get('preview', [InfractionPdfController::class, 'preview'])
-                ->name('preview');
-
-            Route::get('download', [InfractionPdfController::class, 'download'])
-                ->name('download');
-
-            Route::get('stream', [InfractionPdfController::class, 'streamPdf'])
-                ->name('stream');
-
-    });
+        Route::resource('infractions', InfractionController::class)->except(['edit']);
+        Route::get('/infractions/{id}/pdf', function ($id) {
+            return view('infractions.jspdf', ['id' => $id]);
+        })->name('infractions.pdf');
 
 
-        Route::resource('infractions', InfractionController::class);
+        Route::resource('infractions', InfractionController::class)->except(['create']);
+
+        Route::get('/infractions/{id}/pdf', function ($id) {
+            return view('infractions.jspdf', ['id' => $id]);
+        })->name('infractions.pdf');
 
 });
 
 
-    Route::middleware(['auth' ,'role:admin'])->group(function () {
-        Route::get('/users', [UserRoleController::class, 'index'])->name('users.index');
-        Route::get('/users/{user}/roles', [UserRoleController::class, 'edit'])->name('users.roles.edit');
-        Route::put('/users/{user}/roles', [UserRoleController::class, 'update'])->name('users.roles.update');
-    });
 
-        
 
 
 require __DIR__.'/auth.php';

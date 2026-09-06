@@ -44,7 +44,7 @@
             Modifier
         </a>
 
-        <a href="{{ route('infractions.pdf.preview', $infraction) }}" target="_blank" class="btn btn-light">
+        {{-- <a href="{{ route('infractions.pdf.preview', $infraction) }}" target="_blank" class="btn btn-light">
             <i class="bi bi-eye"></i>
             Aperçu
         </a>
@@ -52,7 +52,13 @@
         <a href="{{ route('infractions.pdf.download', $infraction) }}" class="btn-brand">
             <i class="bi bi-download"></i>
             Télécharger
-        </a>
+        </a> --}}
+        <!-- Bouton à mettre n'importe où dans votre page show.blade.php -->
+                        <td style="text-align:right;white-space:nowrap">
+                            <a href="{{ route('infractions.pdf', $infraction->id) }}" target="_blank" class="btn btn-primary">
+                                Voir le PDF
+                            </a>
+                        </td>
     </div>
 </div>
 

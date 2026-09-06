@@ -180,10 +180,8 @@ $avatarColors = [
 
                         {{-- Actions --}}
                         <td style="text-align:right;white-space:nowrap">
-
-                            <a href="{{ route('infractions.pdf.preview', $infraction) }}"
-                            class="act pdf" title="Aperçu PDF" target="_blank">
-                                <i class="bi bi-file-earmark-pdf"></i>
+                            <a href="{{ route('infractions.pdf', $infraction->id) }}" target="_blank" class="btn btn-primary">
+                                Voir le PDF
                             </a>
 
                             <a href="{{ route('infractions.show', $infraction) }}"

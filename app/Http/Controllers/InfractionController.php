@@ -10,6 +10,7 @@ use Illuminate\View\View;
 
 class InfractionController extends Controller
 {
+
     /**
      * --------------------------------------------------------------------------
      * Index
@@ -295,6 +296,12 @@ class InfractionController extends Controller
                 'Infraction modifiée avec succès.'
             );
     }
+
+    public function printDocument($id)
+        {
+            // On passe juste l'ID, car le JavaScript va charger le reste des données via l'API
+            return view('infractions.print', ['infractionId' => $id]);
+        }
 
     /**
      * --------------------------------------------------------------------------
