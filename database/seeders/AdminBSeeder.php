@@ -6,6 +6,7 @@ use App\Models\Tenant;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
+use Spatie\Permission\Models\Role;
 
 /**
  * Deuxieme agence avec son propre administrateur.
@@ -39,8 +40,11 @@ class AdminBSeeder extends Seeder
             $admin->forceFill(['tenant_id' => $tenant->id])->save();
         }
 
-        if (! $admin->hasRole('owner')) {
-            $admin->assignRole('owner');
+        // Le role peut ne pas exister sur une base fraiche.
+        $owner = Role::firstOrCreate(['name' => 'owner', 'guard_name' => 'web']);
+
+        if (! $admin->hasRole($owner)) {
+            $admin->assignRole($owner);
         }
 
         $this->command?->info("Agence « {$tenant->name} » — admin {$admin->email}");

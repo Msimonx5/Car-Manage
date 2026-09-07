@@ -58,8 +58,24 @@ class RolePermissionSeeder extends Seeder
             'name' => 'employee',
         ]);
 
+        /*
+         * Roles du cloisonnement par agence : owner est attribue a chaque
+         * administrateur d'agence a l'inscription, platform-admin donne une
+         * vue sur toutes les agences.
+         */
+        $owner = Role::firstOrCreate([
+            'name' => 'owner',
+        ]);
+
+        Role::firstOrCreate([
+            'name' => 'platform-admin',
+        ]);
+
         // Admin gets everything
         $admin->syncPermissions(Permission::all());
+
+        // Owner : administrateur de sa propre agence
+        $owner->syncPermissions(Permission::all());
 
         // Manager
         $manager->syncPermissions([

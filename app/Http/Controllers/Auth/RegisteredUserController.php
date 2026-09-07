@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rules;
+use Spatie\Permission\Models\Role;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
@@ -60,7 +61,8 @@ class RegisteredUserController extends Controller
                 'password' => Hash::make($request->password),
             ]);
 
-            $user->assignRole('owner');
+            // Le role peut ne pas exister si les seeders n'ont pas ete joues.
+            $user->assignRole(Role::firstOrCreate(['name' => 'owner', 'guard_name' => 'web']));
 
             return $user;
         });
