@@ -59,7 +59,12 @@ return new class extends Migration
                         $blueprint->dropUnique($name);
                     }
 
-                    $blueprint->unique(['tenant_id', $column], $this->scopedName($table, $column));
+                    // MySQL ne sait pas annuler un DDL : si un passage precedent
+                    // s'est interrompu en cours de route, une partie des index
+                    // est deja en place et doit etre laissee telle quelle.
+                    if (! $this->indexExists($table, $this->scopedName($table, $column))) {
+                        $blueprint->unique(['tenant_id', $column], $this->scopedName($table, $column));
+                    }
                 }
             });
         }
@@ -74,7 +79,9 @@ return new class extends Migration
                         $blueprint->dropUnique($this->scopedName($table, $column));
                     }
 
-                    $blueprint->unique($column, $name);
+                    if (! $this->indexExists($table, $name)) {
+                        $blueprint->unique($column, $name);
+                    }
                 }
             });
         }
