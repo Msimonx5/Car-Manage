@@ -38,6 +38,8 @@
             <option value="">Sélectionner...</option>
             @foreach($vehicles as $vehicle)
                 <option value="{{ $vehicle->id }}" data-price="{{ $vehicle->prix_jour }}" data-caution="{{ $vehicle->caution }}"
+                        data-kilometrage="{{ $vehicle->kilometrage }}"
+                        data-prochaine-vidange="{{ $vehicle->prochaine_vidange_km }}"
                         @selected(old('vehicle_id', $contract->vehicle_id ?? '') == $vehicle->id)>
                     {{ $vehicle->marque }} {{ $vehicle->modele }} - {{ $vehicle->immatriculation }}
                 </option>
@@ -77,15 +79,20 @@
     </div>
     <div class="col-md-4 mb-3">
         <label class="form-label">Km départ</label>
-        <input type="number" name="km_depart" class="form-control" value="{{ old('km_depart', $contract->km_depart ?? '') }}">
+        <input type="number" id="km_depart" name="km_depart" class="form-control" value="{{ old('km_depart', $contract->km_depart ?? '') }}">
+        <div class="form-text">Repris du compteur du véhicule à la sélection.</div>
     </div>
     <div class="col-md-4 mb-3">
         <label class="form-label">Km retour</label>
-        <input type="number" name="km_retour" class="form-control" value="{{ old('km_retour', $contract->km_retour ?? '') }}">
+        <input type="number" id="km_retour" name="km_retour" class="form-control" value="{{ old('km_retour', $contract->km_retour ?? '') }}">
+        <div class="form-text">Reporté sur le compteur du véhicule à l'enregistrement.</div>
     </div>
     <div class="col-md-4 mb-3">
         <label class="form-label">Nombre de jours</label>
         <input type="number" id="nombre_jours" name="nombre_jours" readonly class="form-control" style="background:#f6f7f9" value="{{ old('nombre_jours', $contract->nombre_jours ?? 1) }}">
+    </div>
+    <div class="col-12 mb-3">
+        <div id="vidange_alerte" class="vidange-alerte" hidden></div>
     </div>
 </div>
 
@@ -136,6 +143,16 @@
     <button type="submit" class="btn-brand"><i class="bi bi-check-lg"></i> {{ isset($contract) ? 'Mettre à jour' : 'Créer le contrat' }}</button>
 </div>
 
+@push('styles')
+<style>
+  .vidange-alerte{border-radius:10px;padding:10px 14px;font-size:13px;font-weight:600;
+    display:flex;align-items:center;gap:8px}
+  .vidange-alerte.danger{background:var(--danger-tint);color:#b91c1c}
+  .vidange-alerte.warning{background:var(--warning-tint);color:#b26a02}
+  .vidange-alerte.success{background:var(--success-tint);color:#15803d}
+</style>
+@endpush
+
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function () {
@@ -163,16 +180,70 @@ function calcul() {
     }
 }
 
+    const kmDepart = document.getElementById('km_depart');
+    const alerte   = document.getElementById('vidange_alerte');
+
+    // Même seuil que Vehicle::getOilChangeStatusAttribute().
+    const SEUIL_VIDANGE_KM = 1000;
+
+    const formatKm = (valeur) => new Intl.NumberFormat('fr-FR').format(valeur);
+
+    /*
+     * Kilomètres restants avant la prochaine vidange, calculés sur le km de
+     * départ saisi plutôt que sur le compteur enregistré : c'est le relevé du
+     * jour qui compte.
+     */
+    function controlerVidange() {
+        const option    = vehicle.selectedOptions[0];
+        const prochaine = option ? parseInt(option.dataset.prochaineVidange, 10) : NaN;
+
+        if (!option || !option.value || isNaN(prochaine)) {
+            alerte.hidden = true;
+
+            return;
+        }
+
+        const saisi     = parseInt(kmDepart.value, 10);
+        const compteur  = parseInt(option.dataset.kilometrage, 10) || 0;
+        const reste     = prochaine - (isNaN(saisi) ? compteur : saisi);
+
+        let etat, message;
+
+        if (reste <= 0) {
+            etat = 'danger';
+            message = `Vidange urgente : dépassée de ${formatKm(-reste)} km (prévue à ${formatKm(prochaine)} km).`;
+        } else if (reste <= SEUIL_VIDANGE_KM) {
+            etat = 'warning';
+            message = `Vidange bientôt : ${formatKm(reste)} km restants (prévue à ${formatKm(prochaine)} km).`;
+        } else {
+            etat = 'success';
+            message = `Vidange OK : ${formatKm(reste)} km restants.`;
+        }
+
+        alerte.className = 'vidange-alerte ' + etat;
+        alerte.textContent = message;
+        alerte.hidden = false;
+    }
+
     vehicle.addEventListener('change', function () {
         if (this.selectedOptions[0]) {
             tarif.value   = this.selectedOptions[0].dataset.price   || tarif.value;
             caution.value = this.selectedOptions[0].dataset.caution || caution.value;
+
+            // Le compteur du véhicule fait foi pour le km de départ.
+            if (this.selectedOptions[0].dataset.kilometrage) {
+                kmDepart.value = this.selectedOptions[0].dataset.kilometrage;
+            }
         }
+        controlerVidange();
         calcul();
     });
     depart.addEventListener('change', calcul);
     retour.addEventListener('change', calcul);
     tarif.addEventListener('keyup', calcul);
+    kmDepart.addEventListener('input', controlerVidange);
+
+    controlerVidange();
 });
 </script>
 @endpush

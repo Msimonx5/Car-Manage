@@ -248,6 +248,32 @@ class Contract extends Model
         ]);
     }
 
+    /**
+     * Reporte le kilométrage du contrat sur le compteur du véhicule.
+     *
+     * Le km de départ comme le km de retour sont des relevés de compteur :
+     * on retient donc la valeur la plus élevée, un compteur ne reculant
+     * jamais. Même garde que VehicleController::addOilChange().
+     */
+    public function syncVehicleMileage(): void
+    {
+        $vehicle = $this->vehicle;
+
+        if (! $vehicle) {
+            return;
+        }
+
+        $kilometrage = max(
+            (int) $vehicle->kilometrage,
+            (int) $this->km_depart,
+            (int) $this->km_retour,
+        );
+
+        if ($kilometrage !== (int) $vehicle->kilometrage) {
+            $vehicle->update(['kilometrage' => $kilometrage]);
+        }
+    }
+
     /*
     |--------------------------------------------------------------------------
     | Scopes

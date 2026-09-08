@@ -190,6 +190,7 @@ class ContractController extends Controller
         */
 
         $contract->syncVehicleStatus();
+        $contract->syncVehicleMileage();
 
         return redirect()
             ->route('contracts.index')
@@ -284,6 +285,7 @@ class ContractController extends Controller
         }
 
         $contract->syncVehicleStatus();
+        $contract->syncVehicleMileage();
 
         return redirect()
             ->route('contracts.index')
