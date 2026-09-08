@@ -62,6 +62,7 @@
 
                 </li>
 
+@can('view-contracts')
                 <li class="nav-item">
 
                     <a
@@ -73,6 +74,7 @@
                     </a>
 
                 </li>
+@endcan
 
             </ul>
 

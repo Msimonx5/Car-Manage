@@ -223,8 +223,10 @@
     <i class="bi bi-people"></i> Clients</a>
   <a class="nav-item {{ request()->routeIs('vehicles.*') ? 'active' : '' }}" href="{{ route('vehicles.index') }}">
     <i class="bi bi-car-front"></i> Véhicules</a>
+  @can('view-contracts')
   <a class="nav-item {{ request()->routeIs('contracts.*') ? 'active' : '' }}" href="{{ route('contracts.index') }}">
     <i class="bi bi-file-earmark-text"></i> Contrats</a>
+  @endcan
   <a class="nav-item {{ request()->routeIs('infractions.*') ? 'active' : '' }}" href="{{ route('infractions.index') }}">
     <i class="bi bi-exclamation-triangle"></i> Infractions</a>
 

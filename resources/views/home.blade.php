@@ -82,6 +82,7 @@
 
     </div>
 
+@can('view-contracts')
     <div class="col-md-3 mb-4">
 
         <div class="card text-center shadow-sm">
@@ -107,6 +108,7 @@
         </div>
 
     </div>
+@endcan
 
     <div class="col-md-3 mb-4">
 

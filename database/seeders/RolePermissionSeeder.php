@@ -8,6 +8,35 @@ use Spatie\Permission\Models\Role;
 
 class RolePermissionSeeder extends Seeder
 {
+    /**
+     * Permissions verifiees par les routes.
+     */
+    private const PERMISSIONS_METIER = [
+        'view-contracts',
+        'create-contract',
+        'edit-contract',
+        'manage-clients',
+        'manage-fleet',
+        'view-fleet',
+    ];
+
+    /**
+     * Permissions liees aux contrats, retirees au role gestionnaire.
+     */
+    private const PERMISSIONS_CONTRATS = [
+        'view-contracts',
+        'create-contract',
+        'edit-contract',
+
+        // Anciens noms, presents sur certaines bases : retires eux aussi pour
+        // que le role reste coherent quel que soit le vocabulaire employe.
+        'contracts.view',
+        'contracts.create',
+        'contracts.edit',
+        'contracts.delete',
+        'contracts.download',
+    ];
+
     public function run(): void
     {
         $permissions = [
@@ -39,6 +68,13 @@ class RolePermissionSeeder extends Seeder
             'roles.edit',
             'roles.delete',
         ];
+
+        /*
+         * Permissions reellement utilisees par l'application. Les noms
+         * ci-dessus coexistent avec ceux-ci sur les bases existantes ; seuls
+         * ceux de cette liste sont verifies par les routes.
+         */
+        $permissions = array_merge($permissions, self::PERMISSIONS_METIER);
 
         foreach ($permissions as $permission) {
             Permission::firstOrCreate([
@@ -76,6 +112,16 @@ class RolePermissionSeeder extends Seeder
 
         // Owner : administrateur de sa propre agence
         $owner->syncPermissions(Permission::all());
+
+        /*
+         * Gestionnaire : meme perimetre que owner, sans les contrats. Sert aux
+         * agences dont l'administrateur ne doit ni consulter ni creer de
+         * contrat ; la page Contrats disparait alors de son menu.
+         */
+        Role::firstOrCreate(['name' => 'gestionnaire'])
+            ->syncPermissions(
+                Permission::whereNotIn('name', self::PERMISSIONS_CONTRATS)->get()
+            );
 
         // Manager
         $manager->syncPermissions([

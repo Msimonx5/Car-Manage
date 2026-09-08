@@ -40,12 +40,14 @@ class AdminBSeeder extends Seeder
             $admin->forceFill(['tenant_id' => $tenant->id])->save();
         }
 
-        // Le role peut ne pas exister sur une base fraiche.
-        $owner = Role::firstOrCreate(['name' => 'owner', 'guard_name' => 'web']);
+        /*
+         * Gestionnaire plutot qu'owner : ce compte administre son agence mais
+         * n'a pas acces aux contrats. Le role peut ne pas exister sur une base
+         * fraiche ; syncRoles corrige aussi un compte deja cree en owner.
+         */
+        $role = Role::firstOrCreate(['name' => 'gestionnaire', 'guard_name' => 'web']);
 
-        if (! $admin->hasRole($owner)) {
-            $admin->assignRole($owner);
-        }
+        $admin->syncRoles([$role]);
 
         $this->command?->info("Agence « {$tenant->name} » — admin {$admin->email}");
     }

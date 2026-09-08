@@ -220,11 +220,14 @@
                 <tr>
                     <th>N° contrat</th>
                     <td>
-                        @if($infraction->contract)
+                        @if($infraction->contract && auth()->user()?->can('view-contracts'))
                             <a href="{{ route('contracts.show', $infraction->contract) }}"
                                style="font-weight:600;color:var(--primary);text-decoration:none">
                                 {{ $infraction->contract->numero }}
                             </a>
+                        @elseif($infraction->contract)
+                            {{-- Sans acces aux contrats : le numero reste lisible, sans lien. --}}
+                            {{ $infraction->contract->numero }}
                         @else
                             {{ $infraction->numero_contrat ?: '—' }}
                         @endif

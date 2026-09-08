@@ -30,6 +30,7 @@
             </a>
         </li>
 
+@can('view-contracts')
         <li class="nav-item mb-2">
             <a href="{{ route('contracts.index') }}"
                class="nav-link text-white {{ request()->routeIs('contracts.*') ? 'active' : '' }}">
@@ -37,6 +38,7 @@
                 Contrats
             </a>
         </li>
+@endcan
 
         <li class="nav-item mb-2">
             <a href="{{ route('dashboard') }}"

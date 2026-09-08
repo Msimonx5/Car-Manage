@@ -46,6 +46,7 @@
         </a>
     </div>
 
+@can('view-contracts')
     <div class="col-xl-3 col-md-6">
         <a href="{{ route('contracts.index') }}" class="card2 kpi kpi-link">
             <div class="top">
@@ -60,9 +61,12 @@
             </div>
         </a>
     </div>
+@endcan
 
     <div class="col-xl-3 col-md-6">
-        <a href="{{ route('contracts.index') }}" class="card2 kpi kpi-link">
+        {{-- Le chiffre d'affaires vient des contrats : sans acces a ceux-ci,
+             la carte reste affichee mais ne renvoie plus vers une page interdite. --}}
+        <a href="{{ auth()->user()?->can('view-contracts') ? route('contracts.index') : route('dashboard') }}" class="card2 kpi kpi-link">
             <div class="top">
                 <div class="ic tint-info"><i class="bi bi-cash-coin"></i></div>
                 @if(is_null($revenueTrend))
@@ -109,6 +113,7 @@
 
 {{-- ===================== CONTRACT STATUS + ALERTS ===================== --}}
 <div class="row g-3 mb-3">
+@can('view-contracts')
     <div class="col-xl-8">
         <div class="card2 h-100">
             <div class="hd"><h5>État des contrats</h5><a href="{{ route('contracts.index') }}">Voir tous</a></div>
@@ -135,6 +140,7 @@
             </div>
         </div>
     </div>
+@endcan
     <div class="col-xl-4">
         <div class="card2 h-100">
             <div class="hd"><h5>Alertes à traiter</h5>
@@ -159,6 +165,7 @@
 </div>
 
 {{-- ===================== RECENT CONTRACTS ===================== --}}
+@can('view-contracts')
 <div class="card2">
     <div class="hd"><h5>Derniers contrats</h5><a href="{{ route('contracts.index') }}">Voir tous <i class="bi bi-arrow-right"></i></a></div>
     <div style="padding:8px 4px 4px;overflow-x:auto">
@@ -199,6 +206,7 @@
         </table>
     </div>
 </div>
+@endcan
 
 @endsection
 

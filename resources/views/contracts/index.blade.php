@@ -11,7 +11,9 @@
         <h2>Contrats de location</h2>
         <p>{{ $stats['total'] }} contrat(s) au total</p>
     </div>
+    @can('create-contract')
     <a href="{{ route('contracts.create') }}" class="btn-brand"><i class="bi bi-plus-lg"></i> Nouveau contrat</a>
+    @endcan
 </div>
 
 @if(session('success'))

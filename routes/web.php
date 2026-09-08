@@ -78,17 +78,34 @@ Route::middleware('auth')->group(function () {
     |--------------------------------------------------------------------------
     */
 
-    Route::resource('contracts', ContractController::class);
+    /*
+    | Acces aux contrats soumis aux permissions : un compte sans
+    | view-contracts n'a ni la page ni le lien dans le menu.
+    */
 
-    Route::prefix('contracts/{contract}')
-        ->name('contracts.')
-        ->group(function () {
+    Route::middleware('can:create-contract')->group(function () {
+        Route::resource('contracts', ContractController::class)->only(['create', 'store']);
+    });
 
-            Route::get('/preview', [ContractPdfController::class, 'preview'])->name('preview');
-            Route::get('/pdf', [ContractPdfController::class, 'stream'])->name('pdf');
-            Route::get('/download', [ContractPdfController::class, 'download'])->name('download');
+    Route::middleware('can:edit-contract')->group(function () {
+        Route::resource('contracts', ContractController::class)->only(['edit', 'update', 'destroy']);
+    });
 
-        });
+    Route::middleware('can:view-contracts')->group(function () {
+
+        Route::resource('contracts', ContractController::class)->only(['index', 'show']);
+
+        Route::prefix('contracts/{contract}')
+            ->name('contracts.')
+            ->group(function () {
+
+                Route::get('/preview', [ContractPdfController::class, 'preview'])->name('preview');
+                Route::get('/pdf', [ContractPdfController::class, 'stream'])->name('pdf');
+                Route::get('/download', [ContractPdfController::class, 'download'])->name('download');
+
+            });
+
+    });
 
         Route::resource('infractions', InfractionController::class)->except(['edit']);
         Route::get('/infractions/{id}/pdf', function ($id) {
