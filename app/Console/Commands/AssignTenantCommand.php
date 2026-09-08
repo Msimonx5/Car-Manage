@@ -70,15 +70,33 @@ class AssignTenantCommand extends Command
 
     private function afficherEtat(): void
     {
-        $this->table(
-            ['Agence', 'Clients', 'Vehicules', 'Contrats'],
-            Tenant::orderBy('id')->get()->map(fn (Tenant $tenant) => [
-                "{$tenant->name} (#{$tenant->id})",
-                Client::withoutGlobalScopes()->where('tenant_id', $tenant->id)->count(),
-                Vehicle::withoutGlobalScopes()->where('tenant_id', $tenant->id)->count(),
-                Contract::withoutGlobalScopes()->where('tenant_id', $tenant->id)->count(),
-            ])
-        );
+        $lignes = Tenant::orderBy('id')->get()->map(fn (Tenant $tenant) => [
+            "{$tenant->name} (#{$tenant->id})",
+            Client::withoutGlobalScopes()->where('tenant_id', $tenant->id)->count(),
+            Vehicle::withoutGlobalScopes()->where('tenant_id', $tenant->id)->count(),
+            Contract::withoutGlobalScopes()->where('tenant_id', $tenant->id)->count(),
+        ])->all();
+
+        // Lignes sans agence : invisibles pour tous les comptes, donc a signaler.
+        $orphelins = [
+            Client::withoutGlobalScopes()->whereNull('tenant_id')->count(),
+            Vehicle::withoutGlobalScopes()->whereNull('tenant_id')->count(),
+            Contract::withoutGlobalScopes()->whereNull('tenant_id')->count(),
+        ];
+
+        if (array_sum($orphelins) > 0) {
+            $lignes[] = ['SANS AGENCE - invisible', ...$orphelins];
+        }
+
+        $this->table(['Agence', 'Clients', 'Vehicules', 'Contrats'], $lignes);
+
+        if (array_sum($orphelins) > 0) {
+            $this->warn('Des lignes ne sont rattachees a aucune agence : php artisan migrate les rattachera.');
+        }
+
+        if (Tenant::count() === 0) {
+            $this->warn('Aucune agence enregistree.');
+        }
 
         $this->table(
             ['Compte', 'Email', 'Agence'],
