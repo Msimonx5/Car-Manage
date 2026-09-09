@@ -107,17 +107,21 @@ Route::middleware('auth')->group(function () {
 
     });
 
-        Route::resource('infractions', InfractionController::class)->except(['edit']);
-        Route::get('/infractions/{id}/pdf', function ($id) {
-            return view('infractions.jspdf', ['id' => $id]);
-        })->name('infractions.pdf');
+    Route::resource('infractions', InfractionController::class);
 
+    /*
+    | Deux formulaires officiels selon le profil de l'agence :
+    | DPL1, la declaration prealable de location, pour celles qui gerent des
+    | contrats ; DA1, la declaration de l'auteur de l'infraction, pour les
+    | autres, qui declarent le conducteur sans piece de location a joindre.
+    */
+    Route::get('/infractions/{id}/pdf', function ($id) {
+        $vue = auth()->user()?->can('view-contracts')
+            ? 'infractions.jspdf'
+            : 'infractions.jspdf-da1';
 
-        Route::resource('infractions', InfractionController::class)->except(['create']);
-
-        Route::get('/infractions/{id}/pdf', function ($id) {
-            return view('infractions.jspdf', ['id' => $id]);
-        })->name('infractions.pdf');
+        return view($vue, ['id' => $id]);
+    })->name('infractions.pdf');
 
     /*
     |--------------------------------------------------------------------------
