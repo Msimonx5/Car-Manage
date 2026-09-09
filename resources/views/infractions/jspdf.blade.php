@@ -146,6 +146,7 @@ function valeurOuDefaut(valeur, defaut) {
 }
 
 const REGEX_ARABE = /[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\uFB50-\uFDFF\uFE70-\uFEFF]/;
+const ESPACE_ARABE = ' ​';
 
 function preparerTexteArabe() {
     const racine = document.getElementById('page-content');
@@ -153,7 +154,7 @@ function preparerTexteArabe() {
     let noeud;
     while ((noeud = parcours.nextNode())) {
         if (REGEX_ARABE.test(noeud.nodeValue) && noeud.nodeValue.includes(' ')) {
-            noeud.nodeValue = noeud.nodeValue.replace(/ /g, '\u00A0');
+            noeud.nodeValue = noeud.nodeValue.replace(/ /g, ESPACE_ARABE);
         }
     }
 }

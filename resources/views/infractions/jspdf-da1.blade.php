@@ -62,7 +62,10 @@
         .footer-note-container { display: flex; width: 100%; border: 1.2px solid #000; border-top: none; }
         .footer-note-box { width: 50%; padding: 10px 12px; font-size: 10.5px; line-height: 1.5; }
         .footer-note-box:first-child { border-right: 1.2px solid #000; }
-        .footer-note-box .arabic { white-space: normal; text-align: right; font-size: 11px; }
+        /* Selecteur compose et non descendant : la classe arabic est portee par
+           la boite elle-meme. En descendant, le white-space: nowrap de .arabic
+           l'emportait et le paragraphe debordait sur la colonne francaise. */
+        .footer-note-box.arabic { white-space: normal; text-align: right; font-size: 11px; }
 
         .bottom-warning { border: 1.2px solid #000; border-top: none; padding: 8px 10px; font-size: 10.5px; }
         .bottom-warning p { margin: 3px 0; }
@@ -162,6 +165,7 @@ function valeurOuDefaut(valeur, defaut) {
 // html2canvas perd les espaces des textes RTL : on les remplace par des
 // espaces insécables, que le rendu conserve.
 const REGEX_ARABE = /[؀-ۿݐ-ݿࢠ-ࣿﭐ-﷿ﹰ-﻿]/;
+const ESPACE_ARABE = ' ​';
 
 function preparerTexteArabe() {
     const racine = document.getElementById('page-content');
@@ -169,7 +173,7 @@ function preparerTexteArabe() {
     let noeud;
     while ((noeud = parcours.nextNode())) {
         if (REGEX_ARABE.test(noeud.nodeValue) && noeud.nodeValue.includes(' ')) {
-            noeud.nodeValue = noeud.nodeValue.replace(/ /g, ' ');
+            noeud.nodeValue = noeud.nodeValue.replace(/ /g, ESPACE_ARABE);
         }
     }
 }
