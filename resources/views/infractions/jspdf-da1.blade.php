@@ -328,9 +328,15 @@ function supprimerPagesEnTrop(pdf, element) {
 
         <tr>
             <td colspan="6" class="no-side-borders">
-                <div class="flex-row">
-                    <div style="width: 55%;">N° de la C.N.I.E ou de la carte séjour <span class="italic-note">(joindre une copie)</span> : <span class="input-box" id="conducteur-cin-box" style="width: 190px; margin-left: 4px;"></span></div>
-                    <div class="arabic" style="width: 45%;">رقم البطاقة الوطنية للتعريف الإلكترونية أو بطاقة الإقامة ( إرفاق نسخة)</div>
+                {{-- Le libelle et la case ne tiennent pas sur une ligne : la case
+                     passe dessous, centree. Le libelle arabe est laisse libre de
+                     revenir a la ligne, sinon il impose sa largeur a la rangee. --}}
+                <div class="flex-row" style="gap: 10px;">
+                    <div style="width: 55%;">
+                        <div>N° de la C.N.I.E ou de la carte séjour <span class="italic-note">(joindre une copie)</span> :</div>
+                        <div style="text-align: center;"><span class="input-box" id="conducteur-cin-box" style="width: 190px;"></span></div>
+                    </div>
+                    <div class="arabic-wrap" style="width: 45%;">رقم البطاقة الوطنية للتعريف الإلكترونية أو بطاقة الإقامة ( إرفاق نسخة)</div>
                 </div>
             </td>
         </tr>
