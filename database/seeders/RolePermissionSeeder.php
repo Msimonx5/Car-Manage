@@ -123,7 +123,7 @@ class RolePermissionSeeder extends Seeder
                 Permission::whereNotIn('name', self::PERMISSIONS_CONTRATS)->get()
             );
 
-        // Manager
+        // Manager : gestion de son agence, sans consultation des contrats.
         $manager->syncPermissions([
             'dashboard.view',
 
@@ -134,14 +134,9 @@ class RolePermissionSeeder extends Seeder
             'vehicles.view',
             'vehicles.create',
             'vehicles.edit',
-
-            'contracts.view',
-            'contracts.create',
-            'contracts.edit',
-            'contracts.download',
         ]);
 
-        // Employee
+        // Employee : aucune permission liee aux contrats non plus.
         $employee->syncPermissions([
             'dashboard.view',
 
@@ -150,10 +145,6 @@ class RolePermissionSeeder extends Seeder
             'clients.edit',
 
             'vehicles.view',
-
-            'contracts.view',
-            'contracts.create',
-            'contracts.download',
         ]);
     }
 }

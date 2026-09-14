@@ -61,8 +61,19 @@ class RegisteredUserController extends Controller
                 'password' => Hash::make($request->password),
             ]);
 
-            // Le role peut ne pas exister si les seeders n'ont pas ete joues.
-            $user->assignRole(Role::firstOrCreate(['name' => 'owner', 'guard_name' => 'web']));
+            /*
+             * Un nouveau compte administre uniquement sa propre agence, mais
+             * ne peut pas consulter les contrats. Seul le compte owner de
+             * l'agence principale conserve cet acces.
+             *
+             * Le role est initialise par RolePermissionSeeder ; le
+             * firstOrCreate reste utile sur une installation qui n'aurait pas
+             * encore execute les seeders.
+             */
+            $user->assignRole(Role::firstOrCreate([
+                'name' => 'gestionnaire',
+                'guard_name' => 'web',
+            ]));
 
             return $user;
         });

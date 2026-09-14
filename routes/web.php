@@ -115,13 +115,8 @@ Route::middleware('auth')->group(function () {
     | contrats ; DA1, la declaration de l'auteur de l'infraction, pour les
     | autres, qui declarent le conducteur sans piece de location a joindre.
     */
-    Route::get('/infractions/{id}/pdf', function ($id) {
-        $vue = auth()->user()?->can('view-contracts')
-            ? 'infractions.jspdf'
-            : 'infractions.jspdf-da1';
-
-        return view($vue, ['id' => $id]);
-    })->name('infractions.pdf');
+    Route::get('/infractions/{infraction}/pdf', [InfractionController::class, 'pdf'])
+        ->name('infractions.pdf');
 
     /*
     |--------------------------------------------------------------------------

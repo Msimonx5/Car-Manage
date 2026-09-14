@@ -18,7 +18,7 @@
     <form action="{{ route('infractions.update', $infraction->id) }}" method="PUT">
         @csrf
         @method('PUT')
-        @include('infractions._form')
+        @include($usesContracts ? 'infractions._form' : 'infractions._form-without-contract')
     </form>
 </div>
 

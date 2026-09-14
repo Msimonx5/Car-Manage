@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\InfractionRequest;
+use App\Models\Client;
 use App\Models\Contract;
 use App\Models\Infraction;
+use App\Models\Vehicle;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 
@@ -68,6 +70,15 @@ class InfractionController extends Controller
      */
     public function create(): View
     {
+        $usesContracts = $this->usesContracts();
+
+        if (! $usesContracts) {
+            $clients = Client::orderBy('nom')->orderBy('prenom')->get();
+            $vehicles = Vehicle::orderBy('immatriculation')->get();
+
+            return view('infractions.create', compact('usesContracts', 'clients', 'vehicles'));
+        }
+
         $contracts = Contract::with([
             'client',
             'vehicle',
@@ -77,7 +88,7 @@ class InfractionController extends Controller
 
         return view(
             'infractions.create',
-            compact('contracts')
+            compact('contracts', 'usesContracts')
         );
     }
 
@@ -89,6 +100,14 @@ class InfractionController extends Controller
     public function store(
         InfractionRequest $request
     ): RedirectResponse {
+
+        if (! $this->usesContracts()) {
+            Infraction::create($this->manualInfractionData($request->validated()));
+
+            return redirect()
+                ->route('infractions.index')
+                ->with('success', 'Infraction creee avec succes.');
+        }
 
         $contract = Contract::with([
             'client',
@@ -189,6 +208,19 @@ class InfractionController extends Controller
     }
 
     /**
+     * Le modele est injecte par Laravel et deja filtre par TenantScope.
+     * La vue Blade peut donc utiliser directement ses variables sans API.
+     */
+    public function pdf(Infraction $infraction): View
+    {
+        if ($this->usesContracts()) {
+            return view('infractions.jspdf', ['id' => $infraction->id]);
+        }
+
+        return view('infractions.jspdf-sans-contrat', compact('infraction'));
+    }
+
+    /**
      * --------------------------------------------------------------------------
      * Edit
      * --------------------------------------------------------------------------
@@ -196,6 +228,15 @@ class InfractionController extends Controller
     public function edit(
         Infraction $infraction
     ): View {
+
+        $usesContracts = $this->usesContracts();
+
+        if (! $usesContracts) {
+            $clients = Client::orderBy('nom')->orderBy('prenom')->get();
+            $vehicles = Vehicle::orderBy('immatriculation')->get();
+
+            return view('infractions.edit', compact('infraction', 'usesContracts', 'clients', 'vehicles'));
+        }
 
         $contracts = Contract::with([
             'client',
@@ -208,7 +249,8 @@ class InfractionController extends Controller
             'infractions.edit',
             compact(
                 'infraction',
-                'contracts'
+                'contracts',
+                'usesContracts'
             )
         );
     }
@@ -222,6 +264,14 @@ class InfractionController extends Controller
         InfractionRequest $request,
         Infraction $infraction
     ): RedirectResponse {
+
+        if (! $this->usesContracts()) {
+            $infraction->update($this->manualInfractionData($request->validated()));
+
+            return redirect()
+                ->route('infractions.index')
+                ->with('success', 'Infraction modifiee avec succes.');
+        }
 
         $contract = Contract::with([
             'client',
@@ -320,5 +370,38 @@ class InfractionController extends Controller
                 'success',
                 'Infraction supprimée avec succès.'
             );
+    }
+
+    private function usesContracts(): bool
+    {
+        return auth()->user()?->can('view-contracts') ?? false;
+    }
+
+    /**
+     * Copie les donnees du client et du vehicule selectionnes dans le tenant
+     * courant. Les requetes Eloquent appliquent le TenantScope, ce qui empeche
+     * de declarer une infraction avec des donnees d'une autre agence.
+     */
+    private function manualInfractionData(array $validated): array
+    {
+        $client = Client::findOrFail($validated['client_id']);
+        $vehicle = Vehicle::findOrFail($validated['vehicle_id']);
+
+        return [
+            'client_id' => $client->id,
+            'vehicle_id' => $vehicle->id,
+            'nom' => $client->nom,
+            'prenom' => $client->prenom,
+            'cin' => $client->cin,
+            'numero_permis' => $client->numero_permis,
+            'adresse' => $client->adresse,
+            'ville' => $client->ville,
+            'code_postal' => $client->code_postal,
+            'telephone' => $client->telephone,
+            'email' => $client->email,
+            'immatriculation' => $vehicle->immatriculation,
+            'marque' => $vehicle->marque,
+            'modele' => $vehicle->modele,
+        ];
     }
 }

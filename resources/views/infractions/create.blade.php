@@ -17,7 +17,7 @@
 <div class="form-card">
     <form action="{{ route('infractions.store') }}" method="POST">
         @csrf
-        @include('infractions._form')
+        @include($usesContracts ? 'infractions._form' : 'infractions._form-without-contract')
     </form>
 </div>
 

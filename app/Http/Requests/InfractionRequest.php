@@ -13,6 +13,13 @@ class InfractionRequest extends FormRequest
 
     public function rules(): array
     {
+        if (! $this->user()?->can('view-contracts')) {
+            return [
+                'client_id' => ['required', 'exists:clients,id'],
+                'vehicle_id' => ['required', 'exists:vehicles,id'],
+            ];
+        }
+
         return [
             /*
              * Seul ce champ est réellement soumis par le formulaire.
