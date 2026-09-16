@@ -264,7 +264,7 @@ function supprimerPagesEnTrop(pdf, element) {
             <td class="col-right avis-col-right">
                 <div class="arabic">
                     رقم الإشعار بالمخالفة<br>
-                    <span class="italic-note" style="direction: rtl; display: inline-block;">( إرفاق نسخة من الإشعار بهذا المطبوع)</span>
+                    <span class="italic-note" style="direction: rtl; display: inline-block;">&#x200F;(إرفاق نسخة من الإشعار بهذا المطبوع)&#x200F;</span>
                 </div>
             </td>
         </tr>
@@ -364,17 +364,17 @@ function supprimerPagesEnTrop(pdf, element) {
             <td class="col-center" style="padding: 4px 10px;">
                 <div class="thick-input-box">{{ $infraction->cin ?: 'Q34433' }}</div>
             </td>
-            <td class="col-right arabic-wrap">
-                رقم البطاقة الوطنية للتعريف<br>
-                الإلكترونية أو بطاقة الإقامة<br>
-                ( إرفاق نسخة)
-            </td>
+                <td class="col-right arabic-wrap">
+                    رقم البطاقة الوطنية للتعريف<br>
+                    الإلكترونية أو بطاقة الإقامة<br>
+                    &#x200F;(إرفاق نسخة)&#x200F;
+                </td>
         </tr>
 
         <tr>
             <td class="col-left">N° de permis de conduire <span class="italic-note">(joindre une copie)</span></td>
             <td class="col-center value">{{ $infraction->numero_permis ?: 'A12345' }}</td>
-            <td class="col-right arabic">رقم رخصة السياقة ( إرفاق نسخة )</td>
+            <td class="col-right arabic">رقم رخصة السياقة &#x200F;(إرفاق نسخة)&#x200F;</td>
         </tr>
 
         <tr>
@@ -390,17 +390,23 @@ function supprimerPagesEnTrop(pdf, element) {
 
         <!-- Zone de signature avec espace réduit -->
         <tr class="signature-row">
-            <td colspan="2" class="sig-box-left">
-                <div class="sig-label-row-reduced">
-                    <span>Cachet de l'administration</span>
-                    <span class="arabic">خاتم الإدارة</span>
-                </div>
-            </td>
-            <td colspan="1" class="sig-box-right">
-                <div class="sig-label-row">
-                    <span>Signature du déclarant</span>
-                    <span class="arabic">إمضاء المصرح</span>
-                </div>
+            <td colspan="3" style="padding: 0; border-left: 1px solid #000; border-right: 1px solid #000; height: 130px; vertical-align: top;">
+                <table style="width: 100%; height: 100%; table-layout: fixed; border-collapse: collapse;">
+                    <tr>
+                        <td style="width: 55%; border-right: 1px solid #000; padding: 8px 10px; vertical-align: top;">
+                            <div class="sig-label-row-reduced">
+                                <span>Cachet de l'administration</span>
+                                <span class="arabic">خاتم الإدارة</span>
+                            </div>
+                        </td>
+                        <td style="width: 45%; padding: 8px 10px; vertical-align: top;">
+                            <div class="sig-label-row">
+                                <span>Signature du déclarant</span>
+                                <span class="arabic">إمضاء المصرح</span>
+                            </div>
+                        </td>
+                    </tr>
+                </table>
             </td>
         </tr>
     </table>

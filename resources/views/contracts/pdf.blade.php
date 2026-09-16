@@ -348,26 +348,23 @@
 
       <!-- ---------- SIGNATURE AGENT ---------- -->
 <!-- ---------- SIGNATURE AGENT ---------- -->
-      <td class="cell-row3 boxed">
+<!-- ---------- SIGNATURE AGENT ---------- -->
+    <td class="cell-row3 boxed">
         <div class="box">
-          <!-- On crée un espace vide pour s'aligner sur la "Note" du locataire à gauche -->
-          <div style="height: 25px;"></div> 
+          <!-- Espace agrandi pour éloigner "Signature Agent :" de la bordure du haut -->
+          <div style="height: 35px;"></div>
 
-          <!-- On enlève la classe 'sign-row' ici pour supprimer la bordure du haut -->
-          <!-- On garde les styles de police et de padding manuellement -->
           <div style="font-size: 11px; font-weight: bold; padding: 5px 2px 3px;">
             Signature Agent :
           </div>
-          <div class="sign-space"></div>
-          
-          <!-- On garde 'sign-row' ici pour créer la ligne de séparation au milieu -->
-          {{-- <div class="sign-row">
-            Observation : <span class="value">{{ $val($contract->observation) }}</span>
-          </div> --}}
+          <!-- Zone de signature agrandie -->
+          <div class="sign-space" style="height: 18mm;"></div>
+
           <div class="sign-row">
             Observation :
           </div>
-          <div class="sign-space"></div>
+          <!-- Zone observation réduite -->
+          <div class="sign-space" style="height: 6mm;"></div>
         </div>
       </td>
     </tr>

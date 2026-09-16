@@ -23,8 +23,32 @@
         .main-titles h2 { font-size: 16px; margin: 2px 0; font-weight: bold; }
         .subtitle-ar { direction: rtl; font-size: 12px; margin: 0; font-weight: bold; font-family: Arial, sans-serif; }
         .subtitle-fr { font-style: italic; font-size: 12px; margin: 0; }
-        .document-container { width: 100%; border: 1.2px solid #000; border-collapse: collapse; }
-        .document-container td { border: 0.8px solid #000; padding: 5px 10px; vertical-align: middle; font-size: 12px; color: #000; }
+
+        /* --- FIX bordures ---
+           border-collapse: collapse pose problème avec html2canvas dès que le tableau
+           mélange des lignes en colspan="6" et une ligne coupée en 4+2 (la ligne
+           signature) : le navigateur calcule une frontière de colonne "fantôme" que
+           html2canvas peut redessiner sur les lignes du dessus lors de la génération
+           du PDF (le trait vertical parasite visible sur "Fait à" / "Le").
+           Avec border-collapse: separate, chaque cellule porte sa propre bordure
+           (droite + bas) : le quadrillage rendu est visuellement identique, mais il
+           n'y a plus d'ambiguïté de bordure partagée pour le moteur de rasterisation. */
+        .document-container {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            border-top: 1.2px solid #000;
+            border-left: 1.2px solid #000;
+        }
+        .document-container td {
+            border: none;
+            border-right: 0.8px solid #000;
+            border-bottom: 0.8px solid #000;
+            padding: 5px 10px;
+            vertical-align: middle;
+            font-size: 12px;
+            color: #000;
+        }
         .value { font-family: "Times New Roman", Times, serif !important; color: #1a3c72; font-weight: bold; font-size: 12px; text-transform: uppercase; }
         .arabic { direction: rtl; text-align: right; font-family: Arial, sans-serif; font-size: 12.5px; white-space: nowrap; color: #000; }
         .flex-row { display: flex; justify-content: space-between; align-items: center; width: 100%; }
@@ -39,8 +63,10 @@
         .line-row .line-segment { margin: 0; }
         .signature-row td { height: 160px; vertical-align: top !important; padding: 10px; }
         .sig-box-left { width: 65%; text-align: center; border-right: 1.2px solid #000; }
-        .sig-box-right { width: 35%; }
-        .no-side-borders { border-left: none; border-right: none; }
+        .sig-box-right { width: 35%; border-right: none; }
+        /* no-side-borders ne retire plus que la bordure droite : avec border-collapse
+           separate, les cellules n'ont plus de bordure gauche par défaut. */
+        .no-side-borders { border-right: none; }
         /* --- Écran de chargement (le document reste masqué pendant le remplissage) --- */
         body.is-generating { overflow: hidden; }
         #pdf-loader { position: fixed; inset: 0; z-index: 99999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px; background: #f6f7fb; font-family: Arial, Helvetica, sans-serif; }
@@ -114,14 +140,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.getElementById('vehicle-immatriculation').textContent = infraction.immatriculation ?? '';
         // document.getElementById('vehicle-marque-ar').textContent = vehicleFullName;
 
-        // Dates
-        document.getElementById('date-depart').textContent = infraction.date_depart ?? '';
-        document.getElementById('heure-depart').textContent = infraction.heure_depart ?? '';
-        document.getElementById('date-retour-top').textContent = infraction.date_retour ?? '';
-        document.getElementById('date-retour').textContent = infraction.date_retour ?? '';
-        document.getElementById('heure-retour').textContent = infraction.heure_retour ?? '';
+        // Dates (formatage JJ/MM/AAAA — les valeurs API arrivent en ISO complet,
+        // ex. "2026-09-15T00:00:00.000000Z", qu'on ne veut pas afficher telles quelles)
+        document.getElementById('date-depart').textContent = formatDate(infraction.date_depart);
+        document.getElementById('heure-depart').textContent = formatHeure(infraction.heure_depart);
+        document.getElementById('date-retour').textContent = formatDate(infraction.date_retour);
+        document.getElementById('heure-retour').textContent = formatHeure(infraction.heure_retour);
         document.getElementById('lieu-constat').textContent = VILLE_AGENCE;
-        document.getElementById('date-signature').textContent = infraction.created_at ?? '';
+        document.getElementById('date-signature').textContent = formatDate(infraction.created_at);
 
         preparerTexteArabe();
         await attendreImages();
@@ -132,7 +158,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 });
 
-// html2canvas perd les espaces des textes RTL (« الاسم العائلي » devient « الاسمالعائلي »).
+// html2canvas perd les espaces des textes RTL (« الاسم&nbsp;العائلي » devient « الاسمالعائلي »).
 // On remplace les espaces des textes arabes par des espaces insecables, que le rendu conserve.
 // « Fait à » désigne le lieu de rédaction du document, c'est-à-dire la ville de l'agence.
 const VILLE_AGENCE = 'KHOURIBGA';
@@ -145,8 +171,27 @@ function valeurOuDefaut(valeur, defaut) {
     return (valeur ?? '').toString().trim() || defaut;
 }
 
+// Convertit une date ISO ("2026-09-15T00:00:00.000000Z") ou une date "2026-09-15"
+// en "15/09/2026". Retourne la valeur d'origine si elle n'est pas reconnue.
+function formatDate(valeur) {
+    if (!valeur) return '';
+    const date = new Date(valeur);
+    if (isNaN(date.getTime())) return valeur.toString();
+    const jour = String(date.getUTCDate()).padStart(2, '0');
+    const mois = String(date.getUTCMonth() + 1).padStart(2, '0');
+    const annee = date.getUTCFullYear();
+    return `${jour}/${mois}/${annee}`;
+}
+
+// Ne garde que HH:mm à partir d'une heure du type "17:57:00".
+function formatHeure(valeur) {
+    if (!valeur) return '';
+    const correspondance = valeur.toString().match(/^(\d{2}):(\d{2})/);
+    return correspondance ? `${correspondance[1]}:${correspondance[2]}` : valeur.toString();
+}
+
 const REGEX_ARABE = /[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\uFB50-\uFDFF\uFE70-\uFEFF]/;
-const ESPACE_ARABE = ' ​';
+const ESPACE_ARABE = '\u00A0';
 
 function preparerTexteArabe() {
     const racine = document.getElementById('page-content');
@@ -221,14 +266,14 @@ function supprimerPagesEnTrop(pdf, element) {
     <header class="header-banner">
         <div class="header-left"><strong>ROYAUME DU MAROC</strong><br>Ministère de l'Equipement, du Transport et de la Logistique</div>
         <div class="header-center"><img src="{{ asset('narsa.jpeg') }}" alt="Logo"></div>
-        <div class="header-right"><strong>المملكة المغربية</strong><br>وزارة التجهيز والنقل واللوجيستيك</div>
+        <div class="header-right"><strong>المملكة&nbsp;المغربية</strong><br>وزارة&nbsp;التجهيز&nbsp;والنقل&nbsp;واللوجيستيك</div>
     </header>
 
     <div class="title-container">
         <div class="ref-box">Réf. : DPL1</div>
         <div class="main-titles">
-            <h1>التصريح القبلي بكراء سيارة بدون سائق</h1>
-            <p class="subtitle-ar">(يعبأ من طرف المكتري القاطن بالمغرب)</p>
+            <h1>التصريح&nbsp;القبلي&nbsp;بكراء&nbsp;سيارة&nbsp;بدون&nbsp;سائق</h1>
+            <p class="subtitle-ar">(يعبأ&nbsp;من&nbsp;طرف&nbsp;المكتري&nbsp;القاطن&nbsp;بالمغرب)</p>
             <h2>Déclaration préalable de location de voiture sans chauffeur</h2>
             <p class="subtitle-fr">(à renseigner par le locataire résidant au Maroc)</p>
         </div>
@@ -236,16 +281,16 @@ function supprimerPagesEnTrop(pdf, element) {
 
     <table class="document-container">
         <!-- Section Identité -->
-        <tr><td colspan="3" style="width: 50%;">Je soussigné(e) :</td><td colspan="3" class="arabic">أنا الممضي (ة) أسفله</td></tr>
-        <tr><td colspan="6" class="no-side-borders"><div class="flex-row"><div style="width: 15%;">Nom</div><div class="value" id="client-nom" style="flex-grow: 1;"></div><div class="arabic" style="width: 15%;">الاسم العائلي</div></div></td></tr>
-        <tr><td colspan="6" class="no-side-borders"><div class="flex-row"><div style="width: 15%;">Prénom (s)</div><div class="value" id="client-prenom" style="flex-grow: 1;"></div><div class="arabic" style="width: 15%;">الاسم الشخصي</div></div></td></tr>
-        <tr><td colspan="2" style="width: 30%;">N° de la C.N.I.E</td><td colspan="2" style="text-align: center;"><span class="value" id="client-cin"></span></td><td colspan="2" class="arabic" style="width: 30%;">رقم البطاقة الوطنية</td></tr>
-        <tr><td colspan="2">N° du permis</td><td colspan="2" style="text-align: center;"><span class="value" id="client-permis"></span></td><td colspan="2" class="arabic">رقم رخصة السياقة</td></tr>
+        <tr><td colspan="3" style="width: 50%;">Je soussigné(e) :</td><td colspan="3" class="arabic">أنا&nbsp;الممضي&nbsp;(ة)&nbsp;أسفله</td></tr>
+        <tr><td colspan="6" class="no-side-borders"><div class="flex-row"><div style="width: 15%;">Nom</div><div class="value" id="client-nom" style="flex-grow: 1;"></div><div class="arabic" style="width: 15%;">الاسم&nbsp;العائلي</div></div></td></tr>
+        <tr><td colspan="6" class="no-side-borders"><div class="flex-row"><div style="width: 15%;">Prénom (s)</div><div class="value" id="client-prenom" style="flex-grow: 1;"></div><div class="arabic" style="width: 15%;">الاسم&nbsp;الشخصي</div></div></td></tr>
+        <tr><td colspan="2" style="width: 30%;">N° de la C.N.I.E</td><td colspan="2" style="text-align: center;"><span class="value" id="client-cin"></span></td><td colspan="2" class="arabic" style="width: 30%;">رقم&nbsp;البطاقة&nbsp;الوطنية</td></tr>
+        <tr><td colspan="2">N° du permis</td><td colspan="2" style="text-align: center;"><span class="value" id="client-permis"></span></td><td colspan="2" class="arabic">رقم&nbsp;رخصة&nbsp;السياقة</td></tr>
         <tr><td colspan="6" class="no-side-borders"><div class="flex-row"><div style="width: 10%;">Adresse</div><div class="value" id="client-adresse" style="flex-grow: 1; text-align: center;"></div><div class="arabic" style="width: 10%;">العنوان</div></div></td></tr>
         <tr><td colspan="6" class="no-side-borders"><div class="flex-row"><div style="width: 10%;">Ville</div><div class="value" id="client-ville" style="flex-grow: 1;"></div><div class="arabic" style="width: 10%;">المدينة</div></div></td></tr>
-        <tr><td colspan="6" class="no-side-borders"><div class="flex-row"><span>Code postal</span><div class="postal-container" id="postal-container"></div><span class="arabic">الرمز البريدي</span></div></td></tr>
+        <tr><td colspan="6" class="no-side-borders"><div class="flex-row"><span>Code postal</span><div class="postal-container" id="postal-container"></div><span class="arabic">الرمز&nbsp;البريدي</span></div></td></tr>
         <tr><td colspan="6" class="no-side-borders"><div class="flex-row"><div style="width: 10%;">GSM</div><div class="value" id="client-telephone" style="flex-grow: 1;"></div><div class="arabic" style="width: 10%;">الهاتف</div></div></td></tr>
-        <tr><td colspan="6" class="no-side-borders"><div class="flex-row"><span>Mail</span><span class="value" id="client-email"></span><span class="arabic">العنوان الإلكتروني</span></div></td></tr>
+        <tr><td colspan="6" class="no-side-borders"><div class="flex-row"><span>Mail</span><span class="value" id="client-email"></span><span class="arabic">العنوان&nbsp;الإلكتروني</span></div></td></tr>
 
         <!-- Section Véhicule -->
         <tr>
@@ -253,12 +298,12 @@ function supprimerPagesEnTrop(pdf, element) {
                 <div class="flex-row" style="align-items: flex-start;">
                     <div style="width: 42%;">Déclare avoir pris en location le véhicule <strong id="vehicle-full-name"></strong></div>
                     <div style="text-align: center; width: 20%;"><div class="plate-border" id="vehicle-immatriculation"></div><span class="company-name">SOULAMI CAR</span></div>
-                    <div class="arabic" style="width: 38%;">أصرح أنني اكتريت المركبة المسجلة <strong id="vehicle-marque-ar"></strong></div>
+                    <div class="arabic" style="width: 38%;">أصرح&nbsp;أنني&nbsp;اكتريت&nbsp;المركبة&nbsp;المسجلة <strong id="vehicle-marque-ar"></strong></div>
                 </div>
             </td>
         </tr>
         <tr>
-            <td colspan="6" style="padding: 0 15px 10px 15px; border-top: none;">
+            <td colspan="6" style="padding: 0 15px 10px 15px; border-bottom: none;">
                 <div class="flex-row line-row"><div class="line-segment"></div><div class="line-segment"></div></div>
                 <div class="flex-row line-row"><div class="line-segment"></div><div class="line-segment"></div></div>
                 <div class="flex-row line-row"><div class="line-segment"></div><div class="line-segment"></div></div>
@@ -266,18 +311,20 @@ function supprimerPagesEnTrop(pdf, element) {
         </tr>
 
         <!-- Dates -->
-        <tr><td colspan="6" class="no-side-borders"><div class="flex-row"><span>Du :</span><span class="arabic"> :من  </span></div></td></tr>
-        <tr><td colspan="6" class="no-side-borders"><div class="flex-row"><div style="width: 35%;">Jour / Heure emprunt</div><div class="value" style="flex-grow:1; text-align:center;"><span id="date-depart"></span> - <span id="heure-depart"></span></div><div class="arabic" style="width: 35%;">يوم وساعة التسلم</div></div></td></tr>
-        <tr><td colspan="6" class="no-side-borders"><div class="flex-row"><span>Au : <span id="date-retour-top" class="value"></span></span><span class="arabic">إلى :</span></div></td></tr>
-        <tr><td colspan="6" class="no-side-borders"><div class="flex-row"><div style="width: 35%;">Jour / Heure restitution</div><div class="value" style="flex-grow:1; text-align:center;"><span id="date-retour"></span> - <span id="heure-retour"></span></div><div class="arabic" style="width: 35%;">يوم وساعة الإعادة</div></div></td></tr>
+        <tr><td colspan="6" class="no-side-borders"><div class="flex-row"><span>Pour la période allant du :</span><span class="arabic">: للفترة&nbsp;المتراوحة&nbsp;من</span></div></td></tr>
+        <tr><td colspan="6" class="no-side-borders"><div class="flex-row"><span>Jour d'emprunt (JJ/MM/AAAA) :</span><span class="value" id="date-depart"></span><span class="arabic">: يوم&nbsp;تسلم&nbsp;المركبة</span></div></td></tr>
+        <tr><td colspan="6" class="no-side-borders"><div class="flex-row"><span>Heure d'emprunt (HH:MM) :</span><span class="value" id="heure-depart"></span><span class="arabic">: ساعة&nbsp;تسلم&nbsp;المركبة</span></div></td></tr>
+        <tr><td colspan="6" class="no-side-borders"><div class="flex-row"><span>Au :</span><span class="arabic">: إلى</span></div></td></tr>
+        <tr><td colspan="6" class="no-side-borders"><div class="flex-row"><span>Jour de restitution (JJ/MM/AAAA) :</span><span class="value" id="date-retour"></span><span class="arabic">: يوم&nbsp;إعادة&nbsp;المركبة</span></div></td></tr>
+        <tr><td colspan="6" class="no-side-borders"><div class="flex-row"><span>Heure de restitution (HH:MM) :</span><span class="value" id="heure-retour"></span><span class="arabic">: ساعة&nbsp;إعادة&nbsp;المركبة</span></div></td></tr>
 
         <!-- Footer -->
-        <tr><td colspan="6"><div class="flex-row"><span>Fait à : <span class="value" id="lieu-constat"></span></span><span class="arabic">حرر ب :</span></div></td></tr>
-        <tr><td colspan="6"><div class="flex-row"><span>Le : <span class="value" id="date-signature"></span></span><span class="arabic">في :</span></div></td></tr>
+        <tr><td colspan="6" class="no-side-borders"><div class="flex-row"><span>Fait à : <span class="value" id="lieu-constat"></span></span><span class="arabic">: حرر ب</span></div></td></tr>
+        <tr><td colspan="6" class="no-side-borders"><div class="flex-row"><span>Le : <span class="value" id="date-signature"></span></span><span class="arabic">: في</span></div></td></tr>
 
         <tr class="signature-row">
-            <td colspan="4" class="sig-box-left"><div class="arabic">الإمضاء وخاتم الوكالة</div><div>Signature et cachet de l'agence</div></td>
-            <td colspan="2" class="sig-box-right"><div class="flex-row"><span>Signature</span><span class="arabic">إمضاء المكتري</span></div></td>
+            <td colspan="4" class="sig-box-left"><div class="arabic" style="text-align: center;">الإمضاء&nbsp;وخاتم&nbsp;الوكالة</div><div>Signature et cachet de l'agence</div></td>
+            <td colspan="2" class="sig-box-right"><div class="flex-row"><span>Signature</span><span class="arabic">إمضاء&nbsp;المكتري</span></div></td>
         </tr>
     </table>
 </div>
