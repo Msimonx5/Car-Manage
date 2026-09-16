@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Builder;
 use App\Models\Concerns\BelongsToTenant;
+use App\Models\Concerns\BelongsToCreator;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -12,7 +13,7 @@ use App\Enums\VehicleStatus;
 
 class Vehicle extends Model
 {
-    use BelongsToTenant, HasFactory, SoftDeletes;
+    use BelongsToTenant, BelongsToCreator, HasFactory, SoftDeletes;
 
     /**
      * Table
