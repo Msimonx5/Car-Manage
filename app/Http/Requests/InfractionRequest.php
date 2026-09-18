@@ -17,6 +17,10 @@ class InfractionRequest extends FormRequest
             return [
                 'client_id' => ['required', 'exists:clients,id'],
                 'vehicle_id' => ['required', 'exists:vehicles,id'],
+                'date_depart' => ['nullable', 'date'],
+                'heure_depart' => ['nullable', 'date_format:H:i'],
+                'date_retour' => ['nullable', 'date', 'after_or_equal:date_depart'],
+                'heure_retour' => ['nullable', 'date_format:H:i'],
             ];
         }
 
@@ -38,6 +42,7 @@ class InfractionRequest extends FormRequest
     public function messages(): array
     {
         return [
+            'date_retour.after_or_equal' => 'La date de retour doit être postérieure ou égale à la date de départ.',
             'contract_id.required' => 'Veuillez sélectionner un contrat.',
             'contract_id.exists' => 'Le contrat sélectionné est invalide.',
         ];

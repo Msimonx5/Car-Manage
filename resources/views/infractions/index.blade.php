@@ -49,10 +49,8 @@
                     <th>Permis</th>
                     <th>Vehicule</th>
                     <th>Immatriculation</th>
-                    @if($usesContracts)
-                        <th>Depart</th>
-                        <th>Retour</th>
-                    @endif
+                    <th>Départ</th>
+                    <th>Retour</th>
                     <th style="text-align:right">Actions</th>
                 </tr>
             </thead>
@@ -69,10 +67,8 @@
                         <td>{{ $infraction->numero_permis ?? '—' }}</td>
                         <td>{{ $infraction->marque ?? '—' }} {{ $infraction->modele }}</td>
                         <td class="fw-semibold">{{ $infraction->immatriculation ?? '—' }}</td>
-                        @if($usesContracts)
-                            <td>{{ $infraction->date_depart?->format('d/m/Y') ?? '—' }} @if($infraction->heure_depart)<span class="mut">· {{ \Carbon\Carbon::parse($infraction->heure_depart)->format('H:i') }}</span>@endif</td>
-                            <td>{{ $infraction->date_retour?->format('d/m/Y') ?? '—' }} @if($infraction->heure_retour)<span class="mut">· {{ \Carbon\Carbon::parse($infraction->heure_retour)->format('H:i') }}</span>@endif</td>
-                        @endif
+                        <td>{{ $infraction->date_depart?->format('d/m/Y') ?? '—' }} @if($infraction->heure_depart)<span class="mut">· {{ \Carbon\Carbon::parse($infraction->heure_depart)->format('H:i') }}</span>@endif</td>
+                        <td>{{ $infraction->date_retour?->format('d/m/Y') ?? '—' }} @if($infraction->heure_retour)<span class="mut">· {{ \Carbon\Carbon::parse($infraction->heure_retour)->format('H:i') }}</span>@endif</td>
                         <td style="text-align:right;white-space:nowrap">
                             <a href="{{ route('infractions.pdf', $infraction->id) }}" target="_blank" class="act pdf" title="Voir le PDF"><i class="bi bi-file-earmark-pdf"></i></a>
                             <a href="{{ route('infractions.show', $infraction) }}" class="act view" title="Voir"><i class="bi bi-eye"></i></a>
@@ -85,7 +81,7 @@
                         </td>
                     </tr>
                 @empty
-                    <tr><td colspan="{{ $usesContracts ? 9 : 6 }}" class="text-center py-5 mut"><i class="bi bi-exclamation-triangle" style="font-size:28px"></i><div class="mt-2">Aucune infraction trouvee.</div></td></tr>
+                    <tr><td colspan="{{ $usesContracts ? 9 : 8 }}" class="text-center py-5 mut"><i class="bi bi-exclamation-triangle" style="font-size:28px"></i><div class="mt-2">Aucune infraction trouvee.</div></td></tr>
                 @endforelse
             </tbody>
         </table>

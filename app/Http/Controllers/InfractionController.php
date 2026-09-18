@@ -402,6 +402,11 @@ class InfractionController extends Controller
             'immatriculation' => $vehicle->immatriculation,
             'marque' => $vehicle->marque,
             'modele' => $vehicle->modele,
+            // Période de location saisie manuellement pour une infraction sans contrat.
+            'date_depart' => $validated['date_depart'] ?? null,
+            'heure_depart' => $validated['heure_depart'] ?? null,
+            'date_retour' => $validated['date_retour'] ?? null,
+            'heure_retour' => $validated['heure_retour'] ?? null,
         ];
     }
 }

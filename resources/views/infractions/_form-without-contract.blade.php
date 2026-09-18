@@ -53,6 +53,37 @@
     <div class="col-12">
         <div class="card2">
             <div style="padding:16px 18px;border-bottom:1px solid var(--line)">
+                <div class="fw-semibold"><i class="bi bi-calendar-range me-1"></i> Période de location</div>
+                <div class="mut" style="font-size:13px">Saisissez manuellement les dates et heures de la location.</div>
+            </div>
+            <div style="padding:18px" class="row g-3">
+                <div class="col-12 col-md-6">
+                    <label for="date_depart" class="form-label">Date de départ</label>
+                    <input type="date" name="date_depart" id="date_depart" value="{{ old('date_depart', isset($infraction) && $infraction->date_depart ? $infraction->date_depart->format('Y-m-d') : '') }}" class="form-control @error('date_depart') is-invalid @enderror">
+                    @error('date_depart')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                </div>
+                <div class="col-12 col-md-6">
+                    <label for="heure_depart" class="form-label">Heure de départ</label>
+                    <input type="time" name="heure_depart" id="heure_depart" value="{{ old('heure_depart', isset($infraction) && $infraction->heure_depart ? \Illuminate\Support\Str::substr($infraction->heure_depart, 0, 5) : '') }}" class="form-control @error('heure_depart') is-invalid @enderror">
+                    @error('heure_depart')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                </div>
+                <div class="col-12 col-md-6">
+                    <label for="date_retour" class="form-label">Date de retour</label>
+                    <input type="date" name="date_retour" id="date_retour" value="{{ old('date_retour', isset($infraction) && $infraction->date_retour ? $infraction->date_retour->format('Y-m-d') : '') }}" class="form-control @error('date_retour') is-invalid @enderror">
+                    @error('date_retour')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                </div>
+                <div class="col-12 col-md-6">
+                    <label for="heure_retour" class="form-label">Heure de retour</label>
+                    <input type="time" name="heure_retour" id="heure_retour" value="{{ old('heure_retour', isset($infraction) && $infraction->heure_retour ? \Illuminate\Support\Str::substr($infraction->heure_retour, 0, 5) : '') }}" class="form-control @error('heure_retour') is-invalid @enderror">
+                    @error('heure_retour')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12">
+        <div class="card2">
+            <div style="padding:16px 18px;border-bottom:1px solid var(--line)">
                 <div class="fw-semibold"><i class="bi bi-card-text me-1"></i> Informations du client</div>
                 <div class="mut" style="font-size:13px">Lecture seule : les donnees sont copiees depuis la fiche client selectionnee.</div>
             </div>

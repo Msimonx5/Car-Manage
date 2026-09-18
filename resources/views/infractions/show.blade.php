@@ -210,13 +210,14 @@
                 </tr>
             </table>
 
-            {{-- CONTRAT --}}
+            {{-- CONTRAT OU PÉRIODE SAISIE MANUELLEMENT --}}
             <div class="section-title">
-                <i class="bi bi-file-earmark-text"></i>
-                Contrat de location
+                <i class="bi {{ $infraction->contract_id ? 'bi-file-earmark-text' : 'bi-calendar-range' }}"></i>
+                {{ $infraction->contract_id ? 'Contrat de location' : 'Période de location' }}
             </div>
 
             <table class="detail">
+                @if($infraction->contract_id || $infraction->numero_contrat)
                 <tr>
                     <th>N° contrat</th>
                     <td>
@@ -233,6 +234,7 @@
                         @endif
                     </td>
                 </tr>
+                @endif
 
                 <tr>
                     <th>Départ</th>
