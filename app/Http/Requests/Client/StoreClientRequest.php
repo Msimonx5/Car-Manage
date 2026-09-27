@@ -5,6 +5,7 @@ namespace App\Http\Requests\Client;
 use App\Support\Tenancy;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Auth;
 
 class StoreClientRequest extends FormRequest
 {
@@ -72,7 +73,7 @@ class StoreClientRequest extends FormRequest
                 'required',
                 'string',
                 'max:20',
-                Rule::unique('clients', 'cin')->where('tenant_id', Tenancy::currentId()),
+                Rule::unique('clients', 'cin')->where('tenant_id', Tenancy::currentId())->where('created_by', Auth::id()),
             ],
 
             'nationalite' => [
@@ -85,14 +86,14 @@ class StoreClientRequest extends FormRequest
                 'required',
                 'string',
                 'max:50',
-                Rule::unique('clients', 'numero_permis')->where('tenant_id', Tenancy::currentId()),
+                Rule::unique('clients', 'numero_permis')->where('tenant_id', Tenancy::currentId())->where('created_by', Auth::id()),
             ],
 
             'numero_passeport' => [
                 'nullable',
                 'string',
                 'max:50',
-                Rule::unique('clients', 'numero_passeport')->where('tenant_id', Tenancy::currentId()),
+                Rule::unique('clients', 'numero_passeport')->where('tenant_id', Tenancy::currentId())->where('created_by', Auth::id()),
             ],
 
             'adresse_etranger' => [
@@ -111,7 +112,7 @@ class StoreClientRequest extends FormRequest
                 'string',
                 'email',
                 'max:150',
-                Rule::unique('clients', 'email')->where('tenant_id', Tenancy::currentId()),
+                Rule::unique('clients', 'email')->where('tenant_id', Tenancy::currentId())->where('created_by', Auth::id()),
             ],
 
         ];

@@ -46,6 +46,10 @@ class Vehicle extends Model
         'derniere_vidange_km',
         'derniere_vidange_date',
         'prochaine_vidange_km',
+        'filtre_air_date',
+        'filtre_huile_date',
+        'filtre_carburant_date',
+        'filtre_habitacle_date',
 
         'assurance_expiration',
         'visite_technique',
@@ -72,6 +76,10 @@ class Vehicle extends Model
         'kilometrage'=>'integer',
 
         'derniere_vidange_date'=>'date',
+        'filtre_air_date' => 'date',
+        'filtre_huile_date' => 'date',
+        'filtre_carburant_date' => 'date',
+        'filtre_habitacle_date' => 'date',
 
         'assurance_expiration'=>'date',
 

@@ -5,6 +5,7 @@ namespace App\Http\Requests\Client;
 use App\Support\Tenancy;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Auth;
 
 class UpdateClientRequest extends FormRequest
 {
@@ -64,7 +65,7 @@ class UpdateClientRequest extends FormRequest
                 'required',
                 'string',
                 'max:20',
-                Rule::unique('clients', 'cin')->ignore($client)->where('tenant_id', Tenancy::currentId()),
+                Rule::unique('clients', 'cin')->ignore($client)->where('tenant_id', Tenancy::currentId())->where('created_by', Auth::id()),
             ],
 
             'nationalite' => [
@@ -77,14 +78,14 @@ class UpdateClientRequest extends FormRequest
                 'required',
                 'string',
                 'max:50',
-                Rule::unique('clients', 'numero_permis')->ignore($client)->where('tenant_id', Tenancy::currentId()),
+                Rule::unique('clients', 'numero_permis')->ignore($client)->where('tenant_id', Tenancy::currentId())->where('created_by', Auth::id()),
             ],
 
             'numero_passeport' => [
                 'nullable',
                 'string',
                 'max:50',
-                Rule::unique('clients', 'numero_passeport')->ignore($client)->where('tenant_id', Tenancy::currentId()),
+                Rule::unique('clients', 'numero_passeport')->ignore($client)->where('tenant_id', Tenancy::currentId())->where('created_by', Auth::id()),
             ],
 
             'adresse_etranger' => [

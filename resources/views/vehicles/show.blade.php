@@ -60,6 +60,14 @@
                 <tr><th>Date</th><td>{{ optional($vehicle->derniere_vidange_date)->format('d/m/Y') ?: '—' }}</td></tr>
                 <tr><th>Prochaine vidange</th><td>{{ $vehicle->prochaine_vidange_km ? number_format($vehicle->prochaine_vidange_km, 0, ',', ' ') . ' Km' : '—' }}</td></tr>
                 <tr><th>Restant</th><td>{{ number_format($vehicle->remaining_oil_change, 0, ',', ' ') }} Km &nbsp; <x-badge.oil-change-status :vehicle="$vehicle"/></td></tr>
+                @foreach([
+                    'filtre_air_date' => 'Filtre à air',
+                    'filtre_huile_date' => 'Filtre à huile',
+                    'filtre_carburant_date' => 'Filtre à carburant',
+                    'filtre_habitacle_date' => 'Filtre d’habitacle',
+                ] as $field => $label)
+                    <tr><th>{{ $label }}</th><td>{{ $vehicle->{$field} ? 'Changé le ' . $vehicle->{$field}->format('d/m/Y') : 'Pas encore renseigné' }}</td></tr>
+                @endforeach
             </table>
         </div>
     </div>

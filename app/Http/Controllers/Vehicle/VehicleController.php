@@ -234,15 +234,18 @@ class VehicleController extends Controller
 
         $intervalle = $data['intervalle_km'] ?? 10000;
 
-        DB::transaction(function () use ($vehicle, $km, $intervalle) {
-
-            $vehicle->update([
+        DB::transaction(function () use ($vehicle, $km, $intervalle, $data) {
+            $vehicle->update(array_merge([
                 'kilometrage'           => $km,
                 'derniere_vidange_km'   => $km,
                 'derniere_vidange_date' => now(),
                 'prochaine_vidange_km'  => $km + $intervalle,
-            ]);
-
+            ], array_intersect_key($data, array_flip([
+                'filtre_air_date',
+                'filtre_huile_date',
+                'filtre_carburant_date',
+                'filtre_habitacle_date',
+            ]))));
         });
 
         return redirect()->back()->with('success', 'Vidange enregistrée avec succès.');

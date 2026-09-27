@@ -101,6 +101,22 @@
                                                 <label class="form-label">Intervalle avant prochaine vidange (km)</label>
                                                 <input type="number" name="intervalle_km" class="form-control" value="10000" min="1000">
                                             </div>
+
+                                            <hr>
+                                            <h6 class="mb-1">Filtres</h6>
+                                            <small class="text-muted d-block mb-3">Saisissez la date si le filtre a été changé. La date enregistrée indique son dernier remplacement.</small>
+                                            @foreach([
+                                                'filtre_air_date' => 'Filtre à air',
+                                                'filtre_huile_date' => 'Filtre à huile',
+                                                'filtre_carburant_date' => 'Filtre à carburant',
+                                                'filtre_habitacle_date' => 'Filtre d’habitacle',
+                                            ] as $field => $label)
+                                                <div class="mb-3">
+                                                    <label class="form-label">{{ $label }} — date de changement</label>
+                                                    <input type="date" name="{{ $field }}" class="form-control"
+                                                        value="{{ optional($vehicle->{$field})->format('Y-m-d') }}">
+                                                </div>
+                                            @endforeach
                                         </div>
 
                                         <div class="modal-footer">

@@ -112,6 +112,18 @@
         <label class="form-label">Date dernière vidange</label>
         <input type="date" name="derniere_vidange_date" class="form-control" value="{{ old('derniere_vidange_date', isset($vehicle) ? optional($vehicle->derniere_vidange_date)->format('Y-m-d') : '') }}">
     </div>
+    <div class="col-12 mt-2 mb-2"><strong>Filtres</strong><div class="text-muted small">Renseignez la date du dernier remplacement. Une date vide signifie que le changement n’est pas enregistré.</div></div>
+    @foreach([
+        'filtre_air_date' => 'Filtre à air',
+        'filtre_huile_date' => 'Filtre à huile',
+        'filtre_carburant_date' => 'Filtre à carburant',
+        'filtre_habitacle_date' => 'Filtre d’habitacle',
+    ] as $field => $label)
+        <div class="col-md-3 mb-3">
+            <label class="form-label">{{ $label }} — date de changement</label>
+            <input type="date" name="{{ $field }}" class="form-control" value="{{ old($field, isset($vehicle) ? optional($vehicle->{$field})->format('Y-m-d') : '') }}">
+        </div>
+    @endforeach
     <div class="col-md-6 mb-3">
         <label class="form-label">Expiration assurance</label>
         <input type="date" name="assurance_expiration" class="form-control" value="{{ old('assurance_expiration', isset($vehicle) ? optional($vehicle->assurance_expiration)->format('Y-m-d') : '') }}">

@@ -15,7 +15,7 @@
 @include('components.alerts.errors')
 
 <div class="form-card">
-    <form action="{{ route('infractions.update', $infraction->id) }}" method="PUT">
+    <form action="{{ route('infractions.update', $infraction->id) }}" method="POST">
         @csrf
         @method('PUT')
         @include($usesContracts ? 'infractions._form' : 'infractions._form-without-contract')

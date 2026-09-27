@@ -168,6 +168,11 @@ class UpdateVehicleRequest extends FormRequest
                 'date',
             ],
 
+            'filtre_air_date' => ['nullable', 'date'],
+            'filtre_huile_date' => ['nullable', 'date'],
+            'filtre_carburant_date' => ['nullable', 'date'],
+            'filtre_habitacle_date' => ['nullable', 'date'],
+
             /*
             |--------------------------------------------------------------------------
             | Assurance
