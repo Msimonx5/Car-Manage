@@ -50,6 +50,10 @@ class Vehicle extends Model
         'filtre_huile_date',
         'filtre_carburant_date',
         'filtre_habitacle_date',
+        'pneus_date',
+        'pneus_quantite_remplacee',
+        'plaquettes_frein_date',
+        'plaquettes_frein_quantite_remplacee',
 
         'assurance_expiration',
         'visite_technique',
@@ -80,6 +84,10 @@ class Vehicle extends Model
         'filtre_huile_date' => 'date',
         'filtre_carburant_date' => 'date',
         'filtre_habitacle_date' => 'date',
+        'pneus_date' => 'date',
+        'plaquettes_frein_date' => 'date',
+        'pneus_quantite_remplacee' => 'integer',
+        'plaquettes_frein_quantite_remplacee' => 'integer',
 
         'assurance_expiration'=>'date',
 

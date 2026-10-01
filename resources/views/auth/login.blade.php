@@ -29,9 +29,13 @@
         <label class="form-label">Mot de passe</label>
         <div class="input-ico">
             <i class="bi bi-lock"></i>
-            <input type="password" name="password"
+            <input id="login-password" type="password" name="password"
                    class="form-control @error('password') is-invalid @enderror"
                    placeholder="••••••••">
+            <button type="button" class="password-toggle" id="toggle-login-password"
+                    aria-label="Afficher le mot de passe" aria-pressed="false">
+                <i class="bi bi-eye" aria-hidden="true"></i>
+            </button>
         </div>
         @error('password')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
     </div>
@@ -50,5 +54,25 @@
 <div class="auth-foot">
     {{-- Pas encore de compte ? <a href="{{ route('register') }}">Créer un compte</a> --}}
 </div>
+
+<style>
+    .input-ico .form-control[name="password"] { padding-right: 46px; }
+    .password-toggle {
+        position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+        border: 0; background: transparent; color: #6b7280; padding: 6px; line-height: 1;
+    }
+    .input-ico .password-toggle i { position: static; transform: none; color: inherit; }
+    #login-password::-ms-reveal { display: none; }
+</style>
+<script>
+    document.getElementById('toggle-login-password')?.addEventListener('click', function () {
+        const input = document.getElementById('login-password');
+        const visible = input.type === 'password';
+        input.type = visible ? 'text' : 'password';
+        this.setAttribute('aria-pressed', String(visible));
+        this.setAttribute('aria-label', visible ? 'Masquer le mot de passe' : 'Afficher le mot de passe');
+        this.innerHTML = `<i class="bi ${visible ? 'bi-eye-slash' : 'bi-eye'}" aria-hidden="true"></i>`;
+    });
+</script>
 
 @endsection

@@ -109,6 +109,10 @@ class StoreVehicleRequest extends FormRequest
             'filtre_huile_date' => ['nullable', 'date'],
             'filtre_carburant_date' => ['nullable', 'date'],
             'filtre_habitacle_date' => ['nullable', 'date'],
+            'pneus_date' => ['nullable', 'date'],
+            'pneus_quantite_remplacee' => ['nullable', 'integer', 'between:0,4'],
+            'plaquettes_frein_date' => ['nullable', 'date'],
+            'plaquettes_frein_quantite_remplacee' => ['nullable', 'integer', 'between:0,4'],
 
             'assurance_expiration'=>[
                 'nullable',

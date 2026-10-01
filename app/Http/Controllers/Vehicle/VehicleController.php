@@ -12,6 +12,7 @@ use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
 use App\Http\Requests\Vehicle\RecordOilChangeRequest; // <-- import à ajouter en haut
+use App\Http\Requests\Vehicle\RecordVehicleMaintenanceRequest;
 
 class VehicleController extends Controller
 {
@@ -234,21 +235,23 @@ class VehicleController extends Controller
 
         $intervalle = $data['intervalle_km'] ?? 10000;
 
-        DB::transaction(function () use ($vehicle, $km, $intervalle, $data) {
-            $vehicle->update(array_merge([
+        DB::transaction(function () use ($vehicle, $km, $intervalle) {
+            $vehicle->update([
                 'kilometrage'           => $km,
                 'derniere_vidange_km'   => $km,
                 'derniere_vidange_date' => now(),
                 'prochaine_vidange_km'  => $km + $intervalle,
-            ], array_intersect_key($data, array_flip([
-                'filtre_air_date',
-                'filtre_huile_date',
-                'filtre_carburant_date',
-                'filtre_habitacle_date',
-            ]))));
+            ]);
         });
 
         return redirect()->back()->with('success', 'Vidange enregistrée avec succès.');
+    }
+
+    public function updateMaintenance(RecordVehicleMaintenanceRequest $request, Vehicle $vehicle): RedirectResponse
+    {
+        $vehicle->update($request->validated());
+
+        return redirect()->back()->with('success', 'Suivi des filtres, pneus et freins mis à jour.');
     }
 
     /**

@@ -117,11 +117,24 @@
         'filtre_air_date' => 'Filtre à air',
         'filtre_huile_date' => 'Filtre à huile',
         'filtre_carburant_date' => 'Filtre à carburant',
-        'filtre_habitacle_date' => 'Filtre d’habitacle',
+        'filtre_habitacle_date' => 'Filtre de distribution',
     ] as $field => $label)
         <div class="col-md-3 mb-3">
             <label class="form-label">{{ $label }} — date de changement</label>
             <input type="date" name="{{ $field }}" class="form-control" value="{{ old($field, isset($vehicle) ? optional($vehicle->{$field})->format('Y-m-d') : '') }}">
+        </div>
+    @endforeach
+    @foreach([
+        ['date' => 'pneus_date', 'count' => 'pneus_quantite_remplacee', 'label' => 'Pneus'],
+        ['date' => 'plaquettes_frein_date', 'count' => 'plaquettes_frein_quantite_remplacee', 'label' => 'Plaquettes de frein'],
+    ] as $part)
+        <div class="col-md-3 mb-3">
+            <label class="form-label">{{ $part['label'] }} changés (sur 4)</label>
+            <input type="number" name="{{ $part['count'] }}" class="form-control" min="0" max="4" value="{{ old($part['count'], $vehicle->{$part['count']} ?? 0) }}">
+        </div>
+        <div class="col-md-3 mb-3">
+            <label class="form-label">Date du dernier changement</label>
+            <input type="date" name="{{ $part['date'] }}" class="form-control" value="{{ old($part['date'], isset($vehicle) ? optional($vehicle->{$part['date']})->format('Y-m-d') : '') }}">
         </div>
     @endforeach
     <div class="col-md-6 mb-3">

@@ -16,10 +16,6 @@ class RecordOilChangeRequest extends FormRequest
         return [
             'kilometrage_actuel' => ['required', 'integer', 'min:0'],
             'intervalle_km'      => ['nullable', 'integer', 'min:1000'],
-            'filtre_air_date' => ['nullable', 'date'],
-            'filtre_huile_date' => ['nullable', 'date'],
-            'filtre_carburant_date' => ['nullable', 'date'],
-            'filtre_habitacle_date' => ['nullable', 'date'],
         ];
     }
 

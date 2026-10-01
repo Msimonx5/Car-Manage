@@ -64,10 +64,12 @@
                     'filtre_air_date' => 'Filtre à air',
                     'filtre_huile_date' => 'Filtre à huile',
                     'filtre_carburant_date' => 'Filtre à carburant',
-                    'filtre_habitacle_date' => 'Filtre d’habitacle',
+                    'filtre_habitacle_date' => 'Filtre de distribution',
                 ] as $field => $label)
                     <tr><th>{{ $label }}</th><td>{{ $vehicle->{$field} ? 'Changé le ' . $vehicle->{$field}->format('d/m/Y') : 'Pas encore renseigné' }}</td></tr>
                 @endforeach
+                <tr><th>Pneus</th><td>{{ $vehicle->pneus_quantite_remplacee }}/4 remplacé(s){{ $vehicle->pneus_date ? ' — le ' . $vehicle->pneus_date->format('d/m/Y') : '' }}</td></tr>
+                <tr><th>Plaquettes de frein</th><td>{{ $vehicle->plaquettes_frein_quantite_remplacee }}/4 remplacée(s){{ $vehicle->plaquettes_frein_date ? ' — le ' . $vehicle->plaquettes_frein_date->format('d/m/Y') : '' }}</td></tr>
             </table>
         </div>
     </div>

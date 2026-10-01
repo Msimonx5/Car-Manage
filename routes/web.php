@@ -71,6 +71,8 @@ Route::middleware('auth')->group(function () {
     //     ->name('vehicles.oil-change');
     Route::patch('/vehicles/{vehicle}/oil-change', [VehicleController::class, 'addOilChange'])
         ->name('vehicles.oil-change');
+    Route::patch('/vehicles/{vehicle}/maintenance', [VehicleController::class, 'updateMaintenance'])
+        ->name('vehicles.maintenance');
 
     /*
     |--------------------------------------------------------------------------
