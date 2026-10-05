@@ -162,7 +162,7 @@
                             'filtre_air_date' => 'Filtre à air',
                             'filtre_huile_date' => 'Filtre à huile',
                             'filtre_carburant_date' => 'Filtre à carburant',
-                            'filtre_habitacle_date' => 'Filtre de distribution',
+                            'filtre_habitacle_date' => 'Chaîne de distribution',
                         ] as $field => $label)
                             <div class="mb-3">
                                 <label class="form-label">{{ $label }} — date de changement</label>
@@ -171,13 +171,13 @@
                             </div>
                         @endforeach
                         @foreach([
-                            ['date' => 'pneus_date', 'count' => 'pneus_quantite_remplacee', 'label' => 'Pneus'],
-                            ['date' => 'plaquettes_frein_date', 'count' => 'plaquettes_frein_quantite_remplacee', 'label' => 'Plaquettes de frein'],
+                            ['date' => 'pneus_date', 'text' => 'pneus_description', 'label' => 'Pneus'],
+                            ['date' => 'plaquettes_frein_date', 'text' => 'plaquettes_frein_description', 'label' => 'Plaquettes de frein'],
                         ] as $part)
                             <div class="mb-3">
-                                <label class="form-label">{{ $part['label'] }} changés (sur 4)</label>
-                                <input type="number" name="{{ $part['count'] }}" class="form-control" min="0" max="4" required
-                                    value="{{ $vehicle->{$part['count']} ?? 0 }}">
+                                <label class="form-label">{{ $part['label'] }}</label>
+                                <input type="text" name="{{ $part['text'] }}" class="form-control"
+                                    value="{{ $vehicle->{$part['text']} ?? '' }}">
                             </div>
                             <div class="mb-3">
                                 <label class="form-label">Date du dernier changement</label>

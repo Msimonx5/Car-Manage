@@ -51,8 +51,10 @@ class Vehicle extends Model
         'filtre_carburant_date',
         'filtre_habitacle_date',
         'pneus_date',
+        'pneus_description',
         'pneus_quantite_remplacee',
         'plaquettes_frein_date',
+        'plaquettes_frein_description',
         'plaquettes_frein_quantite_remplacee',
 
         'assurance_expiration',

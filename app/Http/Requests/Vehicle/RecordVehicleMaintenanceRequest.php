@@ -19,9 +19,9 @@ class RecordVehicleMaintenanceRequest extends FormRequest
             'filtre_carburant_date' => ['nullable', 'date'],
             'filtre_habitacle_date' => ['nullable', 'date'],
             'pneus_date' => ['nullable', 'date'],
-            'pneus_quantite_remplacee' => ['required', 'integer', 'between:0,4'],
+            'pneus_description' => ['nullable', 'string', 'max:255'],
             'plaquettes_frein_date' => ['nullable', 'date'],
-            'plaquettes_frein_quantite_remplacee' => ['required', 'integer', 'between:0,4'],
+            'plaquettes_frein_description' => ['nullable', 'string', 'max:255'],
         ];
     }
 }
