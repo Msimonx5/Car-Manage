@@ -227,8 +227,9 @@
   <a class="nav-item {{ request()->routeIs('contracts.*') ? 'active' : '' }}" href="{{ route('contracts.index') }}">
     <i class="bi bi-file-earmark-text"></i> Contrats</a>
   @endcan
-  <a class="nav-item {{ request()->routeIs('infractions.*') ? 'active' : '' }}" href="{{ route('infractions.index') }}">
+  @can('view-infractions')<a class="nav-item {{ request()->routeIs('infractions.*') ? 'active' : '' }}" href="{{ route('infractions.index') }}">
     <i class="bi bi-exclamation-triangle"></i> Infractions</a>
+  @endcan
 
   <div class="nav-label">Système</div>
   <a class="nav-item" href="#"><i class="bi bi-gear"></i> Paramètres</a>

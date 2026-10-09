@@ -63,12 +63,16 @@ class Infraction extends Model
         'heure_depart',
         'date_retour',
         'heure_retour',
+        'tarif_jour',
+        'avance',
     ];
 
     protected $casts = [
 
         'date_depart' => 'date',
         'date_retour' => 'date',
+        'tarif_jour' => 'decimal:2',
+        'avance' => 'decimal:2',
 
     ];
 

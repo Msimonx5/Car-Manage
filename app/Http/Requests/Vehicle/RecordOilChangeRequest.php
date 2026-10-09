@@ -15,7 +15,8 @@ class RecordOilChangeRequest extends FormRequest
     {
         return [
             'kilometrage_actuel' => ['required', 'integer', 'min:0'],
-            'intervalle_km'      => ['nullable', 'integer', 'min:1000'],
+            'intervalle_km'      => ['required', 'integer', 'in:10000,15000'],
+            'adblue_date' => ['nullable', 'date'],
         ];
     }
 
@@ -24,7 +25,7 @@ class RecordOilChangeRequest extends FormRequest
         return [
             'kilometrage_actuel.required' => 'Le kilométrage actuel est obligatoire.',
             'kilometrage_actuel.integer'  => 'Le kilométrage doit être un nombre entier.',
-            'intervalle_km.min'           => 'L\'intervalle doit être d\'au moins 1000 km.',
+            'intervalle_km.in'            => 'Choisissez un intervalle de 10 000 ou 15 000 km.',
         ];
     }
 }

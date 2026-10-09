@@ -18,6 +18,8 @@ class RolePermissionSeeder extends Seeder
         'manage-clients',
         'manage-fleet',
         'view-fleet',
+        'view-infractions',
+        'manage-infractions',
     ];
 
     /**
@@ -114,14 +116,17 @@ class RolePermissionSeeder extends Seeder
         $owner->syncPermissions(Permission::all());
 
         /*
-         * Gestionnaire : meme perimetre que owner, sans les contrats. Sert aux
-         * agences dont l'administrateur ne doit ni consulter ni creer de
-         * contrat ; la page Contrats disparait alors de son menu.
+         * Gestionnaire : gestion des infractions et consultation du tableau
+         * de bord, des clients et des vehicules.
          */
         Role::firstOrCreate(['name' => 'gestionnaire'])
-            ->syncPermissions(
-                Permission::whereNotIn('name', self::PERMISSIONS_CONTRATS)->get()
-            );
+            ->syncPermissions([
+                'dashboard.view',
+                'clients.view',
+                'vehicles.view',
+                'view-infractions',
+                'manage-infractions',
+            ]);
 
         // Manager : gestion de son agence, sans consultation des contrats.
         $manager->syncPermissions([

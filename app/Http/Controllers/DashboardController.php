@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Client;
 use App\Models\Contract;
+use App\Models\Infraction;
 use App\Models\Vehicle;
 use App\Enums\ContractStatus;
 use App\Enums\VehicleStatus;
@@ -62,22 +63,32 @@ class DashboardController extends Controller
         |--------------------------------------------------------------------------
         */
 
-        $revenueBase = fn () => Contract::where('statut', '!=', ContractStatus::ANNULE->value);
+        $usesContracts = auth()->user()?->can('view-contracts') ?? false;
+        if ($usesContracts) {
+            $revenueBase = fn () => Contract::where('statut', '!=', ContractStatus::ANNULE->value);
+            $revenueSum = fn ($query) => (float) $query->sum('total_ttc');
+        } else {
+            $revenueBase = fn () => Infraction::query()
+                ->whereNotNull('date_depart')
+                ->whereNotNull('date_retour')
+                ->whereNotNull('tarif_jour');
+            $revenueSum = fn ($query) => (float) $query
+                ->selectRaw('COALESCE(SUM(tarif_jour * GREATEST(1, DATEDIFF(date_retour, date_depart))), 0) as aggregate')
+                ->value('aggregate');
+        }
 
-        $totalRevenue = $revenueBase()->sum('total_ttc');
+        $totalRevenue = $revenueSum($revenueBase());
 
-        $monthlyRevenue = $revenueBase()
+        $monthlyRevenue = $revenueSum($revenueBase()
             ->whereMonth('date_depart', now()->month)
-            ->whereYear('date_depart', now()->year)
-            ->sum('total_ttc');
+            ->whereYear('date_depart', now()->year));
 
         // Chiffre d'affaires du mois précédent (pour la tendance)
         $lastMonth = now()->copy()->subMonthNoOverflow();
 
-        $lastMonthRevenue = $revenueBase()
+        $lastMonthRevenue = $revenueSum($revenueBase()
             ->whereMonth('date_depart', $lastMonth->month)
-            ->whereYear('date_depart', $lastMonth->year)
-            ->sum('total_ttc');
+            ->whereYear('date_depart', $lastMonth->year));
 
         $revenueTrend = $lastMonthRevenue > 0
             ? (int) round((($monthlyRevenue - $lastMonthRevenue) / $lastMonthRevenue) * 100)
@@ -94,14 +105,13 @@ class DashboardController extends Controller
         |--------------------------------------------------------------------------
         */
 
-        $revenueSeries = collect(range(5, 0))->map(function ($i) use ($revenueBase) {
+        $revenueSeries = collect(range(5, 0))->map(function ($i) use ($revenueBase, $revenueSum) {
 
             $month = now()->copy()->subMonthsNoOverflow($i);
 
-            $value = $revenueBase()
+            $value = $revenueSum($revenueBase()
                 ->whereMonth('date_depart', $month->month)
-                ->whereYear('date_depart', $month->year)
-                ->sum('total_ttc');
+                ->whereYear('date_depart', $month->year));
 
             return [
                 'label' => ucfirst($month->locale('fr')->isoFormat('MMM')),

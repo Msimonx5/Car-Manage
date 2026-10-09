@@ -133,8 +133,16 @@
                             <small class="text-muted">Kilométrage actuel en base : {{ number_format($vehicle->kilometrage, 0, ',', ' ') }} km</small>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">Intervalle avant prochaine vidange (km)</label>
-                            <input type="number" name="intervalle_km" class="form-control" value="10000" min="1000">
+                            <label class="form-label">Intervalle avant prochaine vidange</label>
+                            <select name="intervalle_km" class="form-select" required>
+                                <option value="10000">10 000 km</option>
+                                <option value="15000">15 000 km</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Date du dernier remplissage AdBlue</label>
+                            <input type="date" name="adblue_date" class="form-control"
+                                value="{{ optional($vehicle->adblue_date)->format('Y-m-d') }}">
                         </div>
                     </div>
                     <div class="modal-footer">

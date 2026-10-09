@@ -57,6 +57,20 @@ class InfractionController extends Controller
             'total' => Infraction::count(),
         ];
 
+        $infractions->getCollection()->each(function (Infraction $infraction) {
+            $infraction->loadMissing(['contract', 'vehicle']);
+            $days = $infraction->date_depart && $infraction->date_retour
+                ? Contract::calculateDays($infraction->date_depart, $infraction->date_retour)
+                : 0;
+            $rate = (float) ($infraction->tarif_jour ?? $infraction->contract?->tarif_jour ?? $infraction->vehicle?->prix_jour ?? 0);
+            $advance = (float) ($infraction->avance ?? $infraction->contract?->avance ?? 0);
+            $infraction->setAttribute('calculated_days', $days);
+            $infraction->setAttribute('calculated_daily_rate', $rate);
+            $infraction->setAttribute('calculated_total', $days * $rate);
+            $infraction->setAttribute('calculated_advance', $advance);
+            $infraction->setAttribute('calculated_balance', max(0, ($days * $rate) - $advance));
+        });
+
         return view(
             'infractions.index',
             compact('infractions', 'stats')
@@ -176,6 +190,8 @@ class InfractionController extends Controller
             'heure_depart' => $contract->heure_depart,
             'date_retour' => $contract->date_retour,
             'heure_retour' => $contract->heure_retour,
+            'tarif_jour' => $request->validated('tarif_jour'),
+            'avance' => $request->validated('avance'),
         ]);
 
         return redirect()
@@ -337,6 +353,8 @@ class InfractionController extends Controller
             'heure_depart' => $contract->heure_depart,
             'date_retour' => $contract->date_retour,
             'heure_retour' => $contract->heure_retour,
+            'tarif_jour' => $request->validated('tarif_jour'),
+            'avance' => $request->validated('avance'),
         ]);
 
         return redirect()
@@ -407,6 +425,8 @@ class InfractionController extends Controller
             'heure_depart' => $validated['heure_depart'] ?? null,
             'date_retour' => $validated['date_retour'] ?? null,
             'heure_retour' => $validated['heure_retour'] ?? null,
+            'tarif_jour' => $validated['tarif_jour'],
+            'avance' => $validated['avance'],
         ];
     }
 }

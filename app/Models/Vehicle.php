@@ -45,6 +45,7 @@ class Vehicle extends Model
 
         'derniere_vidange_km',
         'derniere_vidange_date',
+        'adblue_date',
         'prochaine_vidange_km',
         'filtre_air_date',
         'filtre_huile_date',
@@ -82,6 +83,7 @@ class Vehicle extends Model
         'kilometrage'=>'integer',
 
         'derniere_vidange_date'=>'date',
+        'adblue_date' => 'date',
         'filtre_air_date' => 'date',
         'filtre_huile_date' => 'date',
         'filtre_carburant_date' => 'date',

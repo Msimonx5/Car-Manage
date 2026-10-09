@@ -13,9 +13,9 @@
         <h2>Infractions</h2>
         <p>{{ $stats['total'] }} infraction(s) au total</p>
     </div>
-    <a href="{{ route('infractions.create') }}" class="btn-brand">
+    @can('manage-infractions')<a href="{{ route('infractions.create') }}" class="btn-brand">
         <i class="bi bi-plus-lg"></i> Nouvelle infraction
-    </a>
+    </a>@endcan
 </div>
 
 @if(session('success'))
@@ -51,6 +51,13 @@
                     <th>Immatriculation</th>
                     <th>Départ</th>
                     <th>Retour</th>
+                    <th>Jours</th>
+                    @unless(auth()->user()?->hasRole('owner'))
+                        <th>Tarif / jour</th>
+                        <th>Total</th>
+                        <th>Avance</th>
+                        <th>Reste</th>
+                    @endunless
                     <th style="text-align:right">Actions</th>
                 </tr>
             </thead>
@@ -69,19 +76,26 @@
                         <td class="fw-semibold">{{ $infraction->immatriculation ?? '—' }}</td>
                         <td>{{ $infraction->date_depart?->format('d/m/Y') ?? '—' }} @if($infraction->heure_depart)<span class="mut">· {{ \Carbon\Carbon::parse($infraction->heure_depart)->format('H:i') }}</span>@endif</td>
                         <td>{{ $infraction->date_retour?->format('d/m/Y') ?? '—' }} @if($infraction->heure_retour)<span class="mut">· {{ \Carbon\Carbon::parse($infraction->heure_retour)->format('H:i') }}</span>@endif</td>
+                        <td>{{ $infraction->calculated_days ?: '—' }}</td>
+                        @unless(auth()->user()?->hasRole('owner'))
+                            <td>{{ number_format($infraction->calculated_daily_rate, 2, ',', ' ') }} DH</td>
+                            <td>{{ number_format($infraction->calculated_total, 2, ',', ' ') }} DH</td>
+                            <td>{{ number_format($infraction->calculated_advance, 2, ',', ' ') }} DH</td>
+                            <td class="fw-semibold">{{ number_format($infraction->calculated_balance, 2, ',', ' ') }} DH</td>
+                        @endunless
                         <td style="text-align:right;white-space:nowrap">
                             <a href="{{ route('infractions.pdf', $infraction->id) }}" target="_blank" class="act pdf" title="Voir le PDF"><i class="bi bi-file-earmark-pdf"></i></a>
                             <a href="{{ route('infractions.show', $infraction) }}" class="act view" title="Voir"><i class="bi bi-eye"></i></a>
-                            <a href="{{ route('infractions.edit', $infraction) }}" class="act edit" title="Modifier"><i class="bi bi-pencil"></i></a>
+                            @can('manage-infractions')<a href="{{ route('infractions.edit', $infraction) }}" class="act edit" title="Modifier"><i class="bi bi-pencil"></i></a>
                             <form action="{{ route('infractions.destroy', $infraction) }}" method="POST" class="d-inline" onsubmit="return confirm('Supprimer cette infraction ?')">
                                 @csrf
                                 @method('DELETE')
                                 <button class="act danger" title="Supprimer"><i class="bi bi-trash"></i></button>
-                            </form>
+                            </form>@endcan
                         </td>
                     </tr>
                 @empty
-                    <tr><td colspan="{{ $usesContracts ? 9 : 8 }}" class="text-center py-5 mut"><i class="bi bi-exclamation-triangle" style="font-size:28px"></i><div class="mt-2">Aucune infraction trouvee.</div></td></tr>
+                    <tr><td colspan="{{ ($usesContracts ? 14 : 13) - (auth()->user()?->hasRole('owner') ? 4 : 0) }}" class="text-center py-5 mut"><i class="bi bi-exclamation-triangle" style="font-size:28px"></i><div class="mt-2">Aucune infraction trouvee.</div></td></tr>
                 @endforelse
             </tbody>
         </table>

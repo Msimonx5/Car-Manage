@@ -39,10 +39,10 @@
             Retour
         </a>
 
-        <a href="{{ route('infractions.edit', $infraction) }}" class="btn-brand">
+        @can('manage-infractions')<a href="{{ route('infractions.edit', $infraction) }}" class="btn-brand">
             <i class="bi bi-pencil"></i>
             Modifier
-        </a>
+        </a>@endcan
 
         {{-- <a href="{{ route('infractions.pdf.preview', $infraction) }}" target="_blank" class="btn btn-light">
             <i class="bi bi-eye"></i>

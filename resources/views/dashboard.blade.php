@@ -79,8 +79,8 @@
             </div>
             <div class="val">{{ number_format($totalRevenue, 0, ',', ' ') }}
                 <small style="font-size:14px;font-weight:600;color:var(--muted)">DH</small></div>
-            <div class="lbl">Chiffre d'affaires</div>
-            <div class="sub">Ce mois : <b>{{ number_format($monthlyRevenue, 0, ',', ' ') }} DH</b></div>
+            <div class="lbl">{{ auth()->user()?->can('view-contracts') ? 'Chiffre d’affaires' : 'CA des infractions' }}</div>
+            <div class="sub">{{ auth()->user()?->can('view-contracts') ? 'Ce mois' : 'Infractions ce mois' }} : <b>{{ number_format($monthlyRevenue, 0, ',', ' ') }} DH</b></div>
         </a>
     </div>
 

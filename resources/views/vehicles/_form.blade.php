@@ -112,6 +112,10 @@
         <label class="form-label">Date dernière vidange</label>
         <input type="date" name="derniere_vidange_date" class="form-control" value="{{ old('derniere_vidange_date', isset($vehicle) ? optional($vehicle->derniere_vidange_date)->format('Y-m-d') : '') }}">
     </div>
+    <div class="col-md-4 mb-3">
+        <label class="form-label">Date dernier remplissage AdBlue</label>
+        <input type="date" name="adblue_date" class="form-control" value="{{ old('adblue_date', isset($vehicle) ? optional($vehicle->adblue_date)->format('Y-m-d') : '') }}">
+    </div>
     <div class="col-12 mt-2 mb-2"><strong>Filtres</strong><div class="text-muted small">Renseignez la date du dernier remplacement. Une date vide signifie que le changement n’est pas enregistré.</div></div>
     @foreach([
         'filtre_air_date' => 'Filtre à air',

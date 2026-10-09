@@ -13,18 +13,23 @@ class InfractionRequest extends FormRequest
 
     public function rules(): array
     {
+        $financialRules = [
+            'tarif_jour' => ['required', 'numeric', 'min:0'],
+            'avance' => ['required', 'numeric', 'min:0'],
+        ];
+
         if (! $this->user()?->can('view-contracts')) {
-            return [
+            return array_merge($financialRules, [
                 'client_id' => ['required', 'exists:clients,id'],
                 'vehicle_id' => ['required', 'exists:vehicles,id'],
                 'date_depart' => ['nullable', 'date'],
                 'heure_depart' => ['nullable', 'date_format:H:i'],
                 'date_retour' => ['nullable', 'date', 'after_or_equal:date_depart'],
                 'heure_retour' => ['nullable', 'date_format:H:i'],
-            ];
+            ]);
         }
 
-        return [
+        return array_merge($financialRules, [
             /*
              * Seul ce champ est réellement soumis par le formulaire.
              * Toutes les autres informations (client, véhicule, contrat)
@@ -36,7 +41,7 @@ class InfractionRequest extends FormRequest
                 'required',
                 'exists:contracts,id',
             ],
-        ];
+        ]);
     }
 
     public function messages(): array

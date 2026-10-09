@@ -235,12 +235,13 @@ class VehicleController extends Controller
 
         $intervalle = $data['intervalle_km'] ?? 10000;
 
-        DB::transaction(function () use ($vehicle, $km, $intervalle) {
+        DB::transaction(function () use ($vehicle, $km, $intervalle, $data) {
             $vehicle->update([
                 'kilometrage'           => $km,
                 'derniere_vidange_km'   => $km,
                 'derniere_vidange_date' => now(),
                 'prochaine_vidange_km'  => $km + $intervalle,
+                'adblue_date' => $data['adblue_date'] ?? null,
             ]);
         });
 
