@@ -167,7 +167,7 @@ class UpdateVehicleRequest extends FormRequest
                 'nullable',
                 'date',
             ],
-            'adblue_date' => ['nullable', 'date'],
+            'adblue_date' => ['nullable', 'string', 'max:255'],
 
             'filtre_air_date' => ['nullable', 'date'],
             'filtre_huile_date' => ['nullable', 'date'],

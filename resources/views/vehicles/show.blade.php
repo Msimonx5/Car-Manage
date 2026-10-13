@@ -58,9 +58,9 @@
             <table class="detail">
                 <tr><th>Dernière vidange</th><td>{{ $vehicle->derniere_vidange_km ? number_format($vehicle->derniere_vidange_km, 0, ',', ' ') . ' Km' : '—' }}</td></tr>
                 <tr><th>Date</th><td>{{ optional($vehicle->derniere_vidange_date)->format('d/m/Y') ?: '—' }}</td></tr>
-                <tr><th>Dernier remplissage AdBlue</th><td>{{ optional($vehicle->adblue_date)->format('d/m/Y') ?: '—' }}</td></tr>
                 <tr><th>Prochaine vidange</th><td>{{ $vehicle->prochaine_vidange_km ? number_format($vehicle->prochaine_vidange_km, 0, ',', ' ') . ' Km' : '—' }}</td></tr>
                 <tr><th>Restant</th><td>{{ number_format($vehicle->remaining_oil_change, 0, ',', ' ') }} Km &nbsp; <x-badge.oil-change-status :vehicle="$vehicle"/></td></tr>
+                <tr><th>Dernier remplissage AdBlue</th><td>{{ $vehicle->adblue_date ?: '—' }}</td></tr>
                 @foreach([
                     'filtre_air_date' => 'Filtre à air',
                     'filtre_huile_date' => 'Filtre à huile',

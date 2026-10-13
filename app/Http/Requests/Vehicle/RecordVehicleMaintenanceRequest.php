@@ -14,6 +14,7 @@ class RecordVehicleMaintenanceRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'adblue_date' => ['nullable', 'string', 'max:255'],
             'filtre_air_date' => ['nullable', 'date'],
             'filtre_huile_date' => ['nullable', 'date'],
             'filtre_carburant_date' => ['nullable', 'date'],

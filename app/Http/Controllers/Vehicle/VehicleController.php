@@ -241,7 +241,6 @@ class VehicleController extends Controller
                 'derniere_vidange_km'   => $km,
                 'derniere_vidange_date' => now(),
                 'prochaine_vidange_km'  => $km + $intervalle,
-                'adblue_date' => $data['adblue_date'] ?? null,
             ]);
         });
 

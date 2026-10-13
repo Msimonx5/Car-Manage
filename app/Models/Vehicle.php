@@ -83,7 +83,6 @@ class Vehicle extends Model
         'kilometrage'=>'integer',
 
         'derniere_vidange_date'=>'date',
-        'adblue_date' => 'date',
         'filtre_air_date' => 'date',
         'filtre_huile_date' => 'date',
         'filtre_carburant_date' => 'date',
@@ -284,5 +283,21 @@ class Vehicle extends Model
     public function infractions()
     {
         return $this->hasMany(Infraction::class);
+    }
+
+    public function getEffectiveStatusAttribute(): VehicleStatus
+    {
+        $status = $this->statut;
+
+        if ($status !== VehicleStatus::DISPONIBLE) {
+            return $status;
+        }
+
+        $hasActiveInfraction = $this->infractions()
+            ->whereDate('date_depart', '<=', now()->toDateString())
+            ->whereDate('date_retour', '>=', now()->toDateString())
+            ->exists();
+
+        return $hasActiveInfraction ? VehicleStatus::INDISPONIBLE : $status;
     }
 }

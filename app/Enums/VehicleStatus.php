@@ -6,6 +6,8 @@ enum VehicleStatus:string
 {
     case DISPONIBLE = 'disponible';
 
+    case INDISPONIBLE = 'indisponible';
+
     case LOUE = 'loue';
 
     case MAINTENANCE = 'maintenance';
@@ -19,6 +21,8 @@ enum VehicleStatus:string
         return match($this){
 
             self::DISPONIBLE => 'Disponible',
+
+            self::INDISPONIBLE => 'Indisponible',
 
             self::LOUE => 'Loué',
 
@@ -36,6 +40,8 @@ enum VehicleStatus:string
         return match($this){
 
             self::DISPONIBLE => 'success',
+
+            self::INDISPONIBLE => 'danger',
 
             self::LOUE => 'primary',
 

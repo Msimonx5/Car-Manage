@@ -16,7 +16,6 @@ class RecordOilChangeRequest extends FormRequest
         return [
             'kilometrage_actuel' => ['required', 'integer', 'min:0'],
             'intervalle_km'      => ['required', 'integer', 'in:10000,15000'],
-            'adblue_date' => ['nullable', 'date'],
         ];
     }
 

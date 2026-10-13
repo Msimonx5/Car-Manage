@@ -81,7 +81,7 @@
                         </td>
                         <td class="nowrap">{{ number_format($vehicle->kilometrage, 0, ',', ' ') }}</td>
                         <td class="fw-semibold nowrap">{{ number_format($vehicle->prix_jour, 2, ',', ' ') }} DH</td>
-                        <td><x-badge.vehicle-status :status="$vehicle->statut"/></td>
+                        <td><x-badge.vehicle-status :status="auth()->user()?->hasRole('gestionnaire') ? $vehicle->effective_status : $vehicle->statut"/></td>
                         <td><x-badge.oil-change-status :vehicle="$vehicle"/></td>
                         <td><x-badge.insurance-status :vehicle="$vehicle"/></td>
                         <td style="text-align:right;white-space:nowrap">
@@ -139,11 +139,6 @@
                                 <option value="15000">15 000 km</option>
                             </select>
                         </div>
-                        <div class="mb-3">
-                            <label class="form-label">Date du dernier remplissage AdBlue</label>
-                            <input type="date" name="adblue_date" class="form-control"
-                                value="{{ optional($vehicle->adblue_date)->format('Y-m-d') }}">
-                        </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
@@ -166,6 +161,11 @@
                     </div>
                     <div class="modal-body">
                         <small class="text-muted d-block mb-3">Pour chaque élément changé, indiquez la date de son dernier remplacement.</small>
+                        <div class="mb-3">
+                            <label class="form-label">Date du dernier remplissage AdBlue</label>
+                            <input type="text" name="adblue_date" class="form-control"
+                                value="{{ $vehicle->adblue_date }}">
+                        </div>
                         @foreach([
                             'filtre_air_date' => 'Filtre à air',
                             'filtre_huile_date' => 'Filtre à huile',

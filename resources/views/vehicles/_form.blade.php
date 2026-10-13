@@ -114,7 +114,7 @@
     </div>
     <div class="col-md-4 mb-3">
         <label class="form-label">Date dernier remplissage AdBlue</label>
-        <input type="date" name="adblue_date" class="form-control" value="{{ old('adblue_date', isset($vehicle) ? optional($vehicle->adblue_date)->format('Y-m-d') : '') }}">
+        <input type="text" name="adblue_date" class="form-control" value="{{ old('adblue_date', $vehicle->adblue_date ?? '') }}">
     </div>
     <div class="col-12 mt-2 mb-2"><strong>Filtres</strong><div class="text-muted small">Renseignez la date du dernier remplacement. Une date vide signifie que le changement n’est pas enregistré.</div></div>
     @foreach([
