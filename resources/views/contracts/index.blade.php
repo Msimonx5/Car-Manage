@@ -67,7 +67,7 @@
                         <td class="fw-semibold">{{ $contract->numero }}</td>
                         <td>
                             <div class="cust">
-                                <span class="av" style="background:{{ $color }}">{{ $initials ?: '—' }}</span>
+                                <span class="av" @style(['background-color' => $color])>{{ $initials ?: '—' }}</span>
                                 {{ $contract->client_full_name }}
                             </div>
                         </td>
@@ -93,12 +93,14 @@
                         <td style="text-align:right;white-space:nowrap">
                             <a href="{{ route('contracts.pdf', $contract) }}" class="act view" title="PDF" target="_blank"><i class="bi bi-file-earmark-pdf"></i></a>
                             <a href="{{ route('contracts.show', $contract) }}" class="act view" title="Voir"><i class="bi bi-eye"></i></a>
+                                                        @can('edit-contract')
                             <a href="{{ route('contracts.edit', $contract) }}" class="act edit" title="Modifier"><i class="bi bi-pencil"></i></a>
                             <form action="{{ route('contracts.destroy', $contract) }}" method="POST" class="d-inline"
                                   onsubmit="return confirm('Supprimer ce contrat ?')">
                                 @csrf @method('DELETE')
                                 <button class="act danger" title="Supprimer"><i class="bi bi-trash"></i></button>
                             </form>
+                                                        @endcan
                         </td>
                     </tr>
                 @empty

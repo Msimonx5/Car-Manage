@@ -8,7 +8,7 @@
 
                 © {{ date('Y') }}
 
-                SOULAMI CAR
+                Car manager
 
             </span>
 

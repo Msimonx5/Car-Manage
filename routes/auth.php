@@ -8,6 +8,7 @@ use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\PasswordController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\RegisteredUserController;
+use App\Http\Controllers\AvatarController;
 use App\Http\Controllers\Auth\VerifyEmailController;
 use Illuminate\Support\Facades\Route;
 
@@ -36,6 +37,10 @@ Route::middleware('guest')->group(function () {
 });
 
 Route::middleware('auth')->group(function () {
+    Route::get('profile/avatar', [AvatarController::class, 'show'])->name('profile.avatar');
+    Route::post('profile/avatar', [AvatarController::class, 'store'])->name('profile.avatar.update');
+    Route::post('profile/avatar/icon', [AvatarController::class, 'chooseIcon'])->name('profile.avatar.icon');
+
     Route::get('verify-email', EmailVerificationPromptController::class)
         ->name('verification.notice');
 

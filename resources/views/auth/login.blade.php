@@ -15,23 +15,23 @@
     @csrf
 
     <div class="mb-3">
-        <label class="form-label">Adresse email</label>
+        <label class="form-label" for="login-email">Adresse email</label>
         <div class="input-ico">
             <i class="bi bi-envelope"></i>
-            <input type="email" name="email" value="{{ old('email') }}"
+            <input id="login-email" type="email" name="email" value="{{ old('email') }}"
                    class="form-control @error('email') is-invalid @enderror"
-                   placeholder="admin@location.ma" autofocus>
+                   placeholder="admin@location.ma" autocomplete="username" required autofocus>
         </div>
         @error('email')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
     </div>
 
     <div class="mb-3">
-        <label class="form-label">Mot de passe</label>
+        <label class="form-label" for="login-password">Mot de passe</label>
         <div class="input-ico">
             <i class="bi bi-lock"></i>
             <input id="login-password" type="password" name="password"
                    class="form-control @error('password') is-invalid @enderror"
-                   placeholder="••••••••">
+                   placeholder="••••••••" autocomplete="current-password" required>
             <button type="button" class="password-toggle" id="toggle-login-password"
                     aria-label="Afficher le mot de passe" aria-pressed="false">
                 <i class="bi bi-eye" aria-hidden="true"></i>
@@ -45,7 +45,7 @@
             <input class="form-check-input" type="checkbox" name="remember" id="remember">
             <label class="form-check-label" for="remember">Se souvenir de moi</label>
         </div>
-        {{-- <a href="{{ route('password.request') }}">Mot de passe oublié ?</a> --}}
+        <a href="{{ route('password.request') }}">Mot de passe oublié ?</a>
     </div>
 
     <button type="submit" class="btn-brand"><i class="bi bi-box-arrow-in-right"></i> Se connecter</button>

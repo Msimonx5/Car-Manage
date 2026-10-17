@@ -7,7 +7,7 @@
 
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>@yield('title','SOULAMI CAR')</title>
+    <title>@yield('title','Car manager')</title>
 
     {{-- @vite([
         'resources/css/app.css',

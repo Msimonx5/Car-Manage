@@ -5,7 +5,7 @@
 @section('content')
 
 <h2>Créer un compte</h2>
-<p class="sub">Rejoignez SOULAMI CAR en quelques secondes.</p>
+<p class="sub">Rejoignez Car manager en quelques secondes.</p>
 
 @if(session('success'))
     <div class="flash ok">{{ session('success') }}</div>

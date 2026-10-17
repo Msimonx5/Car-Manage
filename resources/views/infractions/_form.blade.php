@@ -9,7 +9,6 @@ $initialAvance = old('avance', $infraction->avance ?? $selectedContract?->avance
 
 <div class="row g-3">
 
-```
 {{-- Contrat --}}
 <div class="col-12">
     <div class="card2">
@@ -431,7 +430,6 @@ $initialAvance = old('avance', $infraction->avance ?? $selectedContract?->avance
 
 <div class="d-flex justify-content-end gap-2 mt-4">
 
-```
 <a
     href="{{ route('infractions.index') }}"
     class="btn btn-light"
@@ -448,7 +446,6 @@ $initialAvance = old('avance', $infraction->avance ?? $selectedContract?->avance
     {{ $isEdit ? 'Enregistrer les modifications' : 'Créer l’infraction' }}
 
 </button>
-```
 
 </div>
 

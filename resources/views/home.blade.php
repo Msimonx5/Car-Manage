@@ -12,7 +12,7 @@
 
             <h1 class="display-5">
 
-                🚗 SOULAMI CAR
+                🚗 Car manager
 
             </h1>
 

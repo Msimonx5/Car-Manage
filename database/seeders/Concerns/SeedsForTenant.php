@@ -13,9 +13,9 @@ trait SeedsForTenant
 {
     protected function tenantId(): int
     {
-        return Tenant::firstOrCreate(
+        return Tenant::updateOrCreate(
             ['slug' => 'agence-principale'],
-            ['name' => 'Agence principale']
+            ['name' => 'Task manager']
         )->id;
     }
 }

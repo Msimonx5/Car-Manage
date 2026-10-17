@@ -1,7 +1,7 @@
 <div class="bg-dark text-white vh-100 p-3">
 
     <h4 class="text-center mb-4">
-        🚗 SOULAMI CAR
+        🚗 Car manager
     </h4>
 
     <ul class="nav nav-pills flex-column">

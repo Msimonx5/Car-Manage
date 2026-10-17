@@ -288,9 +288,20 @@ class Contract extends Model
     public function scopeExpirable(Builder $query): Builder
     {
         return $query
+            ->expired()
             ->whereIn('statut', [
                 ContractStatus::EN_ATTENTE,
                 ContractStatus::EN_COURS,
+            ]);
+    }
+
+    public function scopeExpired(Builder $query): Builder
+    {
+        return $query
+            ->whereIn('statut', [
+                ContractStatus::EN_ATTENTE,
+                ContractStatus::EN_COURS,
+                ContractStatus::TERMINE,
             ])
             ->where(function (Builder $q) {
 

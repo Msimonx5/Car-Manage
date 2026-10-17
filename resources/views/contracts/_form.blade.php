@@ -89,7 +89,7 @@
     </div>
     <div class="col-md-4 mb-3">
         <label class="form-label">Nombre de jours</label>
-        <input type="number" id="nombre_jours" name="nombre_jours" readonly class="form-control" style="background:#f6f7f9" value="{{ old('nombre_jours', $contract->nombre_jours ?? 1) }}">
+        <input type="number" id="nombre_jours" name="nombre_jours" readonly class="form-control" style="background:var(--calculated-field-background);color:var(--calculated-field-color)" value="{{ old('nombre_jours', $contract->nombre_jours ?? 1) }}">
     </div>
     <div class="col-12 mb-3">
         <div id="vidange_alerte" class="vidange-alerte" hidden></div>
@@ -106,15 +106,15 @@
     </div>
     <div class="col-md-3 mb-3">
         <label class="form-label">Total HT</label>
-        <input readonly id="total_ht" name="total_ht" class="form-control" style="background:#f6f7f9" value="{{ old('total_ht', $contract->total_ht ?? 0) }}">
+        <input readonly id="total_ht" name="total_ht" class="form-control" style="background:var(--calculated-field-background);color:var(--calculated-field-color)" value="{{ old('total_ht', $contract->total_ht ?? 0) }}">
     </div>
     <div class="col-md-3 mb-3">
         <label class="form-label">TVA (20%)</label>
-        <input readonly id="tva" name="tva" class="form-control" style="background:#f6f7f9" value="{{ old('tva', $contract->tva ?? 0) }}">
+        <input readonly id="tva" name="tva" class="form-control" style="background:var(--calculated-field-background);color:var(--calculated-field-color)" value="{{ old('tva', $contract->tva ?? 0) }}">
     </div>
     <div class="col-md-3 mb-3">
         <label class="form-label">Total TTC</label>
-        <input readonly id="total_ttc" name="total_ttc" class="form-control" style="background:#eef0fe;font-weight:700" value="{{ old('total_ttc', $contract->total_ttc ?? 0) }}">
+        <input readonly id="total_ttc" name="total_ttc" class="form-control" style="background:var(--calculated-total-background);color:var(--calculated-field-color);font-weight:700" value="{{ old('total_ttc', $contract->total_ttc ?? 0) }}">
     </div>
     <div class="col-md-4 mb-3">
         <label class="form-label">Mode de paiement</label>

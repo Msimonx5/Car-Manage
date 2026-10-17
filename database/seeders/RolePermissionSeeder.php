@@ -124,6 +124,9 @@ class RolePermissionSeeder extends Seeder
                 'dashboard.view',
                 'clients.view',
                 'vehicles.view',
+                'view-contracts',
+                'create-contract',
+                'edit-contract',
                 'view-infractions',
                 'manage-infractions',
             ]);
@@ -131,6 +134,7 @@ class RolePermissionSeeder extends Seeder
         // Manager : gestion de son agence, sans consultation des contrats.
         $manager->syncPermissions([
             'dashboard.view',
+            'view-contracts',
 
             'clients.view',
             'clients.create',

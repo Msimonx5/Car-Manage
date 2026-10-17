@@ -6,7 +6,7 @@
             class="navbar-brand fw-bold"
             href="{{ route('home') }}">
 
-            🚗 SOULAMI CAR
+            🚗 Car manager
 
         </a>
 

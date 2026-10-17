@@ -6,6 +6,7 @@ use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Client\ClientController;
 use App\Http\Controllers\Contract\ContractController;
+use App\Http\Controllers\Contract\ContractNotificationController;
 use App\Http\Controllers\Contract\ContractPdfController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Vehicle\VehicleController;
@@ -23,9 +24,9 @@ use App\Http\Controllers\Api\ApiInfractionController;
 */
 
 Route::get('/', function () {
-    return redirect()->route(
-        auth()->check() ? 'dashboard' : 'login'
-    );
+    return auth()->check()
+        ? redirect()->route('dashboard')
+    : redirect()->route('login');
 });
 
 /*
@@ -121,6 +122,14 @@ Route::middleware('auth')->group(function () {
     Route::middleware('can:view-contracts')->group(function () {
 
         Route::resource('contracts', ContractController::class)->only(['index', 'show']);
+
+        Route::prefix('contracts/notifications')
+            ->name('contracts.notifications.')
+            ->group(function () {
+                Route::get('/status', [ContractNotificationController::class, 'status'])->name('status');
+                Route::post('/read-all', [ContractNotificationController::class, 'readAll'])->name('read-all');
+                Route::post('/{contract}/read', [ContractNotificationController::class, 'read'])->name('read');
+            });
 
         Route::prefix('contracts/{contract}')
             ->name('contracts.')
