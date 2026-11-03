@@ -40,6 +40,11 @@
     font-size: 11px;
   }
 
+  .contract-content {
+    width: 190mm;
+    margin: 0 auto;
+  }
+
   /* ============ HEADER (table = compatible DomPDF) ============ */
   .header-table {
     width: 100%;
@@ -218,6 +223,8 @@
 
 <body>
 
+  <div class="contract-content">
+
   <!-- ===================== HEADER ===================== -->
   <table class="header-table">
     <tr>
@@ -370,5 +377,6 @@
     </tr>
   </table>
 @include('contracts.partials.conditions')
+  </div>
 </body>
 </html>

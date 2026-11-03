@@ -4,6 +4,21 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>@yield('title', 'Car manager')</title>
+<script>
+  (function () {
+    const preference = localStorage.getItem('car-manager-theme') || 'system';
+    const useDarkTheme = preference === 'dark'
+      || (preference === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    document.documentElement.dataset.theme = useDarkTheme ? 'dark' : 'light';
+    const textColor = localStorage.getItem('car-manager-text-color')
+      || localStorage.getItem('car-manager-login-text-color');
+    if (['navy', 'blue', 'green', 'burgundy', 'purple'].includes(textColor)) {
+      document.documentElement.dataset.appTextColor = textColor;
+      localStorage.setItem('car-manager-text-color', textColor);
+      localStorage.removeItem('car-manager-login-text-color');
+    }
+  })();
+</script>
 
 <link href="{{ asset('vendor/bootstrap/bootstrap.min.css') }}" rel="stylesheet">
 <link href="{{ asset('vendor/bootstrap-icons/bootstrap-icons.min.css') }}" rel="stylesheet">
@@ -40,8 +55,13 @@
     to{opacity:1;transform:translateX(0) rotate(0)}
   }
   @media(prefers-reduced-motion:reduce){.al-brand{animation:none}}
-  .al-brand .logo{width:46px;height:46px;border-radius:13px;background:rgba(255,255,255,.15);
-    display:grid;place-items:center;font-size:24px}
+  .al-brand .logo,.card-brand .logo{width:46px;height:46px;border-radius:13px;
+    background:linear-gradient(135deg,#fff1ad 0%,#d4af37 24%,#f8e7a0 45%,#a77c12 68%,#f3d875 84%,#c49a28 100%);
+    color:#fff;display:grid;place-items:center;font-size:24px;
+    box-shadow:0 6px 16px rgba(126,88,0,.35),inset 0 1px rgba(255,255,255,.55)}
+  .al-brand .logo i,.card-brand .logo i{background:linear-gradient(135deg,#f5f5f5 0%,#777d82 22%,#17191b 48%,#51575c 68%,#080909 84%,#aeb4b8 100%);
+    background-clip:text;-webkit-background-clip:text;color:transparent;-webkit-text-fill-color:transparent;
+    filter:drop-shadow(0 1px 1px rgba(0,0,0,.55))}
   .al-brand b{font-size:20px;font-weight:800;letter-spacing:.3px}
   .al-brand span{display:block;font-size:12px;opacity:.8;font-weight:500}
   .al-hero{grid-row:2;position:relative;z-index:1;text-align:center}
@@ -57,8 +77,7 @@
   .auth-right a{color:#fb923c}
   .auth-card{width:100%;max-width:400px}
   .card-brand{display:none;align-items:center;gap:10px;margin-bottom:26px;justify-content:center}
-  .card-brand .logo{width:40px;height:40px;border-radius:11px;background:var(--primary);color:#fff;
-    display:grid;place-items:center;font-size:20px}
+  .card-brand .logo{width:40px;height:40px;border-radius:11px;font-size:20px}
   .card-brand b{font-size:17px;font-weight:800}
   .auth-card h2{font-size:23px;font-weight:800;margin:0 0 4px}
   .auth-card .sub{color:#cbd5e1;font-size:13.5px;margin:0 0 24px}
@@ -83,14 +102,118 @@
 
   .auth-foot{text-align:center;font-size:13.5px;color:#cbd5e1;margin-top:22px}
 
+  .theme-mode-toggle{
+    position:fixed;top:20px;right:22px;z-index:10;display:grid;place-items:center;
+    width:42px;height:42px;padding:0;border:1px solid rgba(255,255,255,.3);border-radius:50%;
+    background:rgba(15,23,42,.72);color:#fff;font-size:18px;cursor:pointer;
+    box-shadow:0 4px 14px rgba(0,0,0,.18);backdrop-filter:blur(8px)
+  }
+  .theme-mode-toggle:hover{background:rgba(15,23,42,.9)}
+  .theme-mode-toggle:focus-visible{outline:3px solid #60a5fa;outline-offset:3px}
+
+  .text-color-controls{position:fixed;top:70px;right:22px;z-index:10}
+  .text-color-toggle{
+    display:grid;place-items:center;width:42px;height:42px;padding:0;border:1px solid rgba(255,255,255,.3);
+    border-radius:50%;background:rgba(15,23,42,.72);color:#fff;font-size:18px;cursor:pointer;
+    box-shadow:0 4px 14px rgba(0,0,0,.18);backdrop-filter:blur(8px)
+  }
+  .text-color-toggle:hover{background:rgba(15,23,42,.9)}
+  .text-color-toggle:focus-visible,
+  .text-color-option:focus-visible{outline:3px solid #60a5fa;outline-offset:3px}
+  .text-color-options{
+    position:absolute;top:50px;right:0;display:grid;gap:4px;min-width:150px;padding:8px;
+    border:1px solid rgba(148,163,184,.35);border-radius:12px;background:#fff;color:#0f172a;
+    box-shadow:0 10px 28px rgba(15,23,42,.2)
+  }
+  .text-color-options[hidden]{display:none}
+  .text-color-option{
+    display:flex;align-items:center;gap:9px;width:100%;padding:8px;border:0;border-radius:8px;
+    background:transparent;color:#0f172a;font:500 13px 'Inter',sans-serif;text-align:left;cursor:pointer
+  }
+  .text-color-option:hover,
+  .text-color-option[aria-pressed="true"]{background:#f1f5f9}
+  .text-color-swatch{width:15px;height:15px;flex:none;border:1px solid rgba(15,23,42,.2);border-radius:50%}
+  .text-color-option[data-text-color="navy"] .text-color-swatch{background:#1e3a8a}
+  .text-color-option[data-text-color="blue"] .text-color-swatch{background:#1d4ed8}
+  .text-color-option[data-text-color="green"] .text-color-swatch{background:#166534}
+  .text-color-option[data-text-color="burgundy"] .text-color-swatch{background:#991b1b}
+  .text-color-option[data-text-color="purple"] .text-color-swatch{background:#6b21a8}
+  .text-color-option[data-text-color="default"] .text-color-swatch{
+    background:linear-gradient(135deg,#2d2208 50%,#f8fafc 50%)
+  }
+
+  :root[data-app-text-color="navy"]{--app-text-color:#1e3a8a}
+  :root[data-app-text-color="blue"]{--app-text-color:#1d4ed8}
+  :root[data-app-text-color="green"]{--app-text-color:#166534}
+  :root[data-app-text-color="burgundy"]{--app-text-color:#991b1b}
+  :root[data-app-text-color="purple"]{--app-text-color:#6b21a8}
+  :root[data-theme="dark"][data-app-text-color="navy"]{--app-text-color:#bfdbfe}
+  :root[data-theme="dark"][data-app-text-color="blue"]{--app-text-color:#93c5fd}
+  :root[data-theme="dark"][data-app-text-color="green"]{--app-text-color:#86efac}
+  :root[data-theme="dark"][data-app-text-color="burgundy"]{--app-text-color:#fca5a5}
+  :root[data-theme="dark"][data-app-text-color="purple"]{--app-text-color:#d8b4fe}
+  :root[data-app-text-color] .auth :is(
+    .al-brand b,.al-brand span,.al-hero h1,.al-hero p,.al-feats div,
+    .auth-card h2,.auth-card .sub,.auth-card .form-label,.auth-card .form-check-label,
+    .auth-card .auth-foot,.auth-card .invalid-feedback
+  ){color:var(--app-text-color)!important}
+  :root[data-app-text-color] .auth-card .form-control{color:var(--app-text-color)}
+
+  :root[data-theme="light"] .auth-right{
+    background:linear-gradient(135deg,#fff 0%,#f8fafc 55%,#eef2f7 100%);color:#0f172a
+  }
+  :root[data-theme="light"] .auth-right a{color:#c2410c}
+  :root[data-theme="light"] .auth-card .sub,
+  :root[data-theme="light"] .form-check-label,
+  :root[data-theme="light"] .auth-foot{color:#64748b}
+  :root[data-theme="light"] .form-label{color:#334155}
+  :root[data-theme="light"] .theme-mode-toggle{
+    border-color:rgba(15,23,42,.14);background:rgba(255,255,255,.88);color:#0f172a
+  }
+  :root[data-theme="light"] .theme-mode-toggle:hover{background:#fff}
+
   @media(max-width:991px){
     .auth-left{display:none}
     .auth-right{width:100%}
     .card-brand{display:flex}
   }
+  @media(max-width:575px){
+    .theme-mode-toggle{top:12px;right:12px}
+    .text-color-controls{top:62px;right:12px}
+  }
 </style>
 </head>
 <body>
+
+<button class="theme-mode-toggle" type="button" id="themeModeToggle" aria-label="Mode système" title="Mode système">
+  <i class="bi bi-display" aria-hidden="true"></i>
+</button>
+<div class="text-color-controls">
+  <button class="text-color-toggle" type="button" id="textColorToggle" aria-label="Choisir la couleur du texte"
+          title="Couleur du texte" aria-expanded="false" aria-controls="textColorOptions">
+    <i class="bi bi-spellcheck" aria-hidden="true"></i>
+  </button>
+  <div class="text-color-options" id="textColorOptions" role="group" aria-label="Couleur du texte" hidden>
+    <button class="text-color-option" type="button" data-text-color="default" aria-pressed="true">
+      <span class="text-color-swatch" aria-hidden="true"></span><span>Original</span>
+    </button>
+    <button class="text-color-option" type="button" data-text-color="navy" aria-pressed="false">
+      <span class="text-color-swatch" aria-hidden="true"></span><span>Bleu marine</span>
+    </button>
+    <button class="text-color-option" type="button" data-text-color="blue" aria-pressed="false">
+      <span class="text-color-swatch" aria-hidden="true"></span><span>Bleu</span>
+    </button>
+    <button class="text-color-option" type="button" data-text-color="green" aria-pressed="false">
+      <span class="text-color-swatch" aria-hidden="true"></span><span>Vert</span>
+    </button>
+    <button class="text-color-option" type="button" data-text-color="burgundy" aria-pressed="false">
+      <span class="text-color-swatch" aria-hidden="true"></span><span>Bordeaux</span>
+    </button>
+    <button class="text-color-option" type="button" data-text-color="purple" aria-pressed="false">
+      <span class="text-color-swatch" aria-hidden="true"></span><span>Violet</span>
+    </button>
+  </div>
+</div>
 
 <div class="auth">
   <div class="auth-left">
@@ -124,5 +247,100 @@
 
 <script src="{{ asset('vendor/bootstrap/bootstrap.min.js') }}"></script>
 <script src="{{ asset('js/ui-click-sound.js') }}"></script>
+<script>
+  (function () {
+    const toggle = document.getElementById('themeModeToggle');
+    const textColorToggle = document.getElementById('textColorToggle');
+    const textColorOptions = document.getElementById('textColorOptions');
+    const textColorChoices = document.querySelectorAll('[data-text-color]');
+    const textColors = ['navy', 'blue', 'green', 'burgundy', 'purple'];
+    const systemTheme = window.matchMedia('(prefers-color-scheme: dark)');
+    const themes = ['light', 'dark', 'system'];
+    const themeDetails = {
+      light: { label: 'Clair', icon: 'bi-sun' },
+      dark: { label: 'Sombre', icon: 'bi-moon-stars' },
+      system: { label: 'Système', icon: 'bi-display' }
+    };
+
+    function updateToggle() {
+      const preference = localStorage.getItem('car-manager-theme') || 'system';
+      const currentTheme = themeDetails[preference] ? preference : 'system';
+      const nextTheme = themes[(themes.indexOf(currentTheme) + 1) % themes.length];
+      toggle.innerHTML = `<i class="bi ${themeDetails[currentTheme].icon}" aria-hidden="true"></i>`;
+      toggle.setAttribute('aria-label', `Mode ${themeDetails[currentTheme].label}. Passer au mode ${themeDetails[nextTheme].label}.`);
+      toggle.setAttribute('title', `Mode ${themeDetails[currentTheme].label} · suivant : ${themeDetails[nextTheme].label}`);
+      toggle.dataset.nextTheme = nextTheme;
+    }
+
+    toggle.addEventListener('click', function () {
+      const nextTheme = toggle.dataset.nextTheme;
+      localStorage.setItem('car-manager-theme', nextTheme);
+      const useDarkTheme = nextTheme === 'dark'
+        || (nextTheme === 'system' && systemTheme.matches);
+      document.documentElement.dataset.theme = useDarkTheme ? 'dark' : 'light';
+      updateToggle();
+    });
+
+    systemTheme.addEventListener('change', function (event) {
+      if (localStorage.getItem('car-manager-theme') === 'system') {
+        document.documentElement.dataset.theme = event.matches ? 'dark' : 'light';
+        updateToggle();
+      }
+    });
+
+    function setTextColor(color) {
+      if (color === 'default') {
+        delete document.documentElement.dataset.appTextColor;
+        localStorage.removeItem('car-manager-text-color');
+        localStorage.removeItem('car-manager-login-text-color');
+      } else if (textColors.includes(color)) {
+        document.documentElement.dataset.appTextColor = color;
+        localStorage.setItem('car-manager-text-color', color);
+        localStorage.removeItem('car-manager-login-text-color');
+      } else {
+        return;
+      }
+
+      textColorChoices.forEach(function (choice) {
+        choice.setAttribute('aria-pressed', String(choice.dataset.textColor === color));
+      });
+    }
+
+    textColorToggle.addEventListener('click', function () {
+      const expanded = textColorToggle.getAttribute('aria-expanded') === 'true';
+      textColorToggle.setAttribute('aria-expanded', String(!expanded));
+      textColorOptions.hidden = expanded;
+    });
+
+    textColorChoices.forEach(function (choice) {
+      choice.addEventListener('click', function () {
+        setTextColor(choice.dataset.textColor);
+        textColorOptions.hidden = true;
+        textColorToggle.setAttribute('aria-expanded', 'false');
+        textColorToggle.focus();
+      });
+    });
+
+    document.addEventListener('click', function (event) {
+      if (!event.target.closest('.text-color-controls')) {
+        textColorOptions.hidden = true;
+        textColorToggle.setAttribute('aria-expanded', 'false');
+      }
+    });
+
+    document.addEventListener('keydown', function (event) {
+      if (event.key === 'Escape' && !textColorOptions.hidden) {
+        textColorOptions.hidden = true;
+        textColorToggle.setAttribute('aria-expanded', 'false');
+        textColorToggle.focus();
+      }
+    });
+
+    const savedTextColor = localStorage.getItem('car-manager-text-color')
+      || localStorage.getItem('car-manager-login-text-color');
+    setTextColor(textColors.includes(savedTextColor) ? savedTextColor : 'default');
+    updateToggle();
+  })();
+</script>
 </body>
 </html>
