@@ -11,9 +11,14 @@
         <h2>Contrats de location</h2>
         <p>{{ $stats['total'] }} contrat(s) au total</p>
     </div>
-    @can('create-contract')
-    <a href="{{ route('contracts.create') }}" class="btn-brand"><i class="bi bi-plus-lg"></i> Nouveau contrat</a>
-    @endcan
+    <div class="d-flex flex-wrap gap-2">
+        <a href="{{ route('contracts.export', request()->query()) }}" class="btn-soft" title="Télécharger tous les résultats filtrés au format CSV compatible Excel">
+            <i class="bi bi-file-earmark-spreadsheet"></i> Exporter Excel
+        </a>
+        @can('create-contract')
+        <a href="{{ route('contracts.create') }}" class="btn-brand"><i class="bi bi-plus-lg"></i> Nouveau contrat</a>
+        @endcan
+    </div>
 </div>
 
 @if(session('success'))

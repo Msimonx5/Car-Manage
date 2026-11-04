@@ -12,7 +12,7 @@
     document.documentElement.dataset.theme = useDarkTheme ? 'dark' : 'light';
     const textColor = localStorage.getItem('car-manager-text-color')
       || localStorage.getItem('car-manager-login-text-color');
-    if (['navy', 'blue', 'green', 'burgundy', 'purple'].includes(textColor)) {
+    if (['navy', 'blue', 'green', 'burgundy', 'purple', 'mixed'].includes(textColor)) {
       document.documentElement.dataset.appTextColor = textColor;
       localStorage.setItem('car-manager-text-color', textColor);
       localStorage.removeItem('car-manager-login-text-color');
@@ -28,19 +28,25 @@
 <style>
   :root{
     --ink:#0f172a; --muted:#6b7280; --line:#e6e8ee;
-    --primary:#c2410c; --primary-tint:#fff1e6; --danger:#ef4444; --danger-tint:#fdeaea;
+    --primary:#1877f2; --primary-tint:#e7f0ff; --bs-primary:#1877f2; --bs-primary-rgb:24,119,242;
+    --danger:#ef4444; --danger-tint:#fdeaea;
     --success:#16a34a; --success-tint:#e7f6ec;
   }
   *{box-sizing:border-box}
   body{margin:0;font-family:'Inter',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:var(--ink)}
   a{text-decoration:none;color:var(--primary);font-weight:600}
+  .btn-primary{
+    --bs-btn-color:#fff;--bs-btn-bg:var(--primary);--bs-btn-border-color:var(--primary);
+    --bs-btn-hover-color:#fff;--bs-btn-hover-bg:#1664d9;--bs-btn-hover-border-color:#155dc9;
+    --bs-btn-active-color:#fff;--bs-btn-active-bg:#155dc9;--bs-btn-active-border-color:#155dc9;
+    --bs-btn-disabled-color:#fff;--bs-btn-disabled-bg:var(--primary);--bs-btn-disabled-border-color:var(--primary)}
 
   .auth{display:flex;min-height:100vh}
 
   /* ---- left brand panel ---- */
   .auth-left{
-    flex:1;position:relative;overflow:hidden;color:#2d2208;padding:48px 52px;
-    background:linear-gradient(120deg,#7b5b12 0%,#c5a044 18%,#f6e3a2 33%,#b48b2a 49%,#e9ce73 65%,#a77e1e 82%,#6d500e 100%);
+    flex:1;position:relative;overflow:hidden;color:#fff;padding:48px 52px;
+    background:linear-gradient(120deg,#0754c7 0%,#1877f2 24%,#0866ff 50%,#1d6fe8 74%,#064cb5 100%);
     display:grid;grid-template-rows:auto minmax(0,1fr) auto;align-items:center;
   }
   .auth-left::after{content:"";position:absolute;right:-120px;bottom:-120px;width:360px;height:360px;
@@ -56,12 +62,10 @@
   }
   @media(prefers-reduced-motion:reduce){.al-brand{animation:none}}
   .al-brand .logo,.card-brand .logo{width:46px;height:46px;border-radius:13px;
-    background:linear-gradient(135deg,#fff1ad 0%,#d4af37 24%,#f8e7a0 45%,#a77c12 68%,#f3d875 84%,#c49a28 100%);
+    background:linear-gradient(135deg,#a8ccff 0%,#1877f2 30%,#0866ff 58%,#0754c7 82%,#4b91f1 100%);
     color:#fff;display:grid;place-items:center;font-size:24px;
-    box-shadow:0 6px 16px rgba(126,88,0,.35),inset 0 1px rgba(255,255,255,.55)}
-  .al-brand .logo i,.card-brand .logo i{background:linear-gradient(135deg,#f5f5f5 0%,#777d82 22%,#17191b 48%,#51575c 68%,#080909 84%,#aeb4b8 100%);
-    background-clip:text;-webkit-background-clip:text;color:transparent;-webkit-text-fill-color:transparent;
-    filter:drop-shadow(0 1px 1px rgba(0,0,0,.55))}
+    box-shadow:0 6px 16px rgba(0,44,110,.28),inset 0 1px rgba(255,255,255,.55)}
+  .al-brand .logo i,.card-brand .logo i{color:#fff}
   .al-brand b{font-size:20px;font-weight:800;letter-spacing:.3px}
   .al-brand span{display:block;font-size:12px;opacity:.8;font-weight:500}
   .al-hero{grid-row:2;position:relative;z-index:1;text-align:center}
@@ -74,7 +78,7 @@
   /* ---- right form area ---- */
   .auth-right{width:560px;max-width:100%;display:flex;align-items:center;justify-content:center;
     padding:32px 24px;background:linear-gradient(135deg,#080809 0%,#202023 24%,#0b0b0d 48%,#242428 72%,#09090a 100%);color:#f8fafc}
-  .auth-right a{color:#fb923c}
+  .auth-right a{color:#60a5fa}
   .auth-card{width:100%;max-width:400px}
   .card-brand{display:none;align-items:center;gap:10px;margin-bottom:26px;justify-content:center}
   .card-brand .logo{width:40px;height:40px;border-radius:11px;font-size:20px}
@@ -91,7 +95,7 @@
 
   .btn-brand{background:var(--primary);border:0;color:#fff;font-weight:700;border-radius:11px;
     padding:12px 16px;font-size:14px;width:100%;display:inline-flex;align-items:center;justify-content:center;gap:8px}
-  .btn-brand:hover{background:#9a3412;color:#fff}
+  .btn-brand:hover{background:#1664d9;color:#fff}
 
   .form-check-input:checked{background-color:var(--primary);border-color:var(--primary)}
   .form-check-label{font-size:13px;color:#e5e7eb}
@@ -138,6 +142,8 @@
   .text-color-option[data-text-color="green"] .text-color-swatch{background:#166534}
   .text-color-option[data-text-color="burgundy"] .text-color-swatch{background:#991b1b}
   .text-color-option[data-text-color="purple"] .text-color-swatch{background:#6b21a8}
+  .text-color-option[data-text-color="mixed"] .text-color-swatch{
+    background:linear-gradient(135deg,#7c3aed 0 33%,#1d4ed8 33% 66%,#16a34a 66%)}
   .text-color-option[data-text-color="default"] .text-color-swatch{
     background:linear-gradient(135deg,#2d2208 50%,#f8fafc 50%)
   }
@@ -147,22 +153,30 @@
   :root[data-app-text-color="green"]{--app-text-color:#166534}
   :root[data-app-text-color="burgundy"]{--app-text-color:#991b1b}
   :root[data-app-text-color="purple"]{--app-text-color:#6b21a8}
+  :root[data-app-text-color="mixed"]{--app-text-color:#0f172a}
   :root[data-theme="dark"][data-app-text-color="navy"]{--app-text-color:#bfdbfe}
   :root[data-theme="dark"][data-app-text-color="blue"]{--app-text-color:#93c5fd}
   :root[data-theme="dark"][data-app-text-color="green"]{--app-text-color:#86efac}
   :root[data-theme="dark"][data-app-text-color="burgundy"]{--app-text-color:#fca5a5}
   :root[data-theme="dark"][data-app-text-color="purple"]{--app-text-color:#d8b4fe}
+  :root[data-theme="dark"][data-app-text-color="mixed"]{--app-text-color:#edf0f2}
   :root[data-app-text-color] .auth :is(
     .al-brand b,.al-brand span,.al-hero h1,.al-hero p,.al-feats div,
     .auth-card h2,.auth-card .sub,.auth-card .form-label,.auth-card .form-check-label,
     .auth-card .auth-foot,.auth-card .invalid-feedback
   ){color:var(--app-text-color)!important}
   :root[data-app-text-color] .auth-card .form-control{color:var(--app-text-color)}
+  :root[data-app-text-color="mixed"] .auth :is(.al-brand b,.auth-card h2,.al-hero h1){color:#7c3aed!important}
+  :root[data-app-text-color="mixed"] .auth :is(a,.auth-card .form-check-label){color:#1d4ed8!important}
+  :root[data-app-text-color="mixed"] .auth :is(.form-label,.al-feats div){color:#166534!important}
+  :root[data-theme="dark"][data-app-text-color="mixed"] .auth :is(.al-brand b,.auth-card h2,.al-hero h1){color:#c4b5fd!important}
+  :root[data-theme="dark"][data-app-text-color="mixed"] .auth :is(a,.auth-card .form-check-label){color:#93c5fd!important}
+  :root[data-theme="dark"][data-app-text-color="mixed"] .auth :is(.form-label,.al-feats div){color:#86efac!important}
 
   :root[data-theme="light"] .auth-right{
     background:linear-gradient(135deg,#fff 0%,#f8fafc 55%,#eef2f7 100%);color:#0f172a
   }
-  :root[data-theme="light"] .auth-right a{color:#c2410c}
+  :root[data-theme="light"] .auth-right a{color:#1664d9}
   :root[data-theme="light"] .auth-card .sub,
   :root[data-theme="light"] .form-check-label,
   :root[data-theme="light"] .auth-foot{color:#64748b}
@@ -212,6 +226,9 @@
     <button class="text-color-option" type="button" data-text-color="purple" aria-pressed="false">
       <span class="text-color-swatch" aria-hidden="true"></span><span>Violet</span>
     </button>
+    <button class="text-color-option" type="button" data-text-color="mixed" aria-pressed="false">
+      <span class="text-color-swatch" aria-hidden="true"></span><span>Couleurs mixtes</span>
+    </button>
   </div>
 </div>
 
@@ -253,7 +270,7 @@
     const textColorToggle = document.getElementById('textColorToggle');
     const textColorOptions = document.getElementById('textColorOptions');
     const textColorChoices = document.querySelectorAll('[data-text-color]');
-    const textColors = ['navy', 'blue', 'green', 'burgundy', 'purple'];
+    const textColors = ['navy', 'blue', 'green', 'burgundy', 'purple', 'mixed'];
     const systemTheme = window.matchMedia('(prefers-color-scheme: dark)');
     const themes = ['light', 'dark', 'system'];
     const themeDetails = {

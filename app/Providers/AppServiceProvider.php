@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Models\Contract;
+use App\Models\User;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Auth;
@@ -10,7 +12,6 @@ use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\View;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
-use App\Models\Contract;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -33,6 +34,18 @@ class AppServiceProvider extends ServiceProvider
             $user = Auth::user();
             $expiredContractCount = 0;
             $expiredContractNotifications = collect();
+            $switchableAccounts = collect();
+
+            if ($user) {
+                $accountIds = session('signed_in_account_ids', []);
+                $accountIds = is_array($accountIds) ? array_map('intval', $accountIds) : [];
+                $accountIds[] = (int) $user->getAuthIdentifier();
+
+                $switchableAccounts = User::query()
+                    ->whereIn('id', array_unique($accountIds))
+                    ->orderBy('name')
+                    ->get(['id', 'name', 'email']);
+            }
 
             if ($user && Gate::forUser($user)->allows('view-contracts')) {
                 $sessionKey = 'read_expired_contract_ids.' . Auth::id();
@@ -74,7 +87,8 @@ class AppServiceProvider extends ServiceProvider
 
             $view->with(compact(
                 'expiredContractCount',
-                'expiredContractNotifications'
+                'expiredContractNotifications',
+                'switchableAccounts'
             ));
         });
 

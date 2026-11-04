@@ -9,7 +9,9 @@ use App\Enums\VehicleStatus;
 use App\Models\Client;
 use App\Models\Contract;
 use App\Models\Vehicle;
+use App\Support\ExcelCsvExport;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
@@ -24,57 +26,7 @@ class ContractController extends Controller
     {
         Contract::releaseExpired();
 
-        $query = Contract::query()
-            ->with([
-                'client:id,nom,prenom',
-                'vehicle:id,marque,modele,immatriculation',
-            ]);
-
-        /*
-        |--------------------------------------------------------------------------
-        | Recherche
-        |--------------------------------------------------------------------------
-        */
-
-        if ($request->filled('q')) {
-
-            $search = $request->q;
-
-            $query->where(function ($q) use ($search) {
-
-                $q->where('numero', 'like', "%{$search}%")
-                    ->orWhereHas('client', function ($client) use ($search) {
-
-                        $client->where('nom', 'like', "%{$search}%")
-                               ->orWhere('prenom', 'like', "%{$search}%");
-
-                    })
-                    ->orWhereHas('vehicle', function ($vehicle) use ($search) {
-
-                        $vehicle->where('immatriculation', 'like', "%{$search}%")
-                                ->orWhere('marque', 'like', "%{$search}%")
-                                ->orWhere('modele', 'like', "%{$search}%");
-
-                    });
-
-            });
-
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | Filtre
-        |--------------------------------------------------------------------------
-        */
-
-        if ($request->filled('statut')) {
-
-            $query->where('statut', $request->statut);
-
-        }
-
-        $contracts = $query
-            ->latest()
+        $contracts = $this->filteredContracts($request)
             ->paginate(10)
             ->withQueryString();
 
@@ -98,6 +50,75 @@ class ContractController extends Controller
             'contracts',
             'stats'
         ));
+    }
+
+    public function export(Request $request)
+    {
+        Contract::releaseExpired();
+
+        $rows = $this->filteredContracts($request)->lazy(500)->map(static fn (Contract $contract): array => [
+            $contract->id,
+            $contract->numero,
+            $contract->client?->nom,
+            $contract->client?->prenom,
+            $contract->vehicle?->immatriculation,
+            $contract->vehicle?->marque,
+            $contract->vehicle?->modele,
+            $contract->date_depart?->format('Y-m-d'),
+            $contract->heure_depart,
+            $contract->date_retour?->format('Y-m-d'),
+            $contract->heure_retour,
+            $contract->nombre_jours,
+            $contract->km_depart,
+            $contract->km_retour,
+            $contract->tarif_jour,
+            $contract->total_ht,
+            $contract->tva,
+            $contract->total_ttc,
+            $contract->avance,
+            max(0, (float) $contract->total_ttc - (float) $contract->avance),
+            $contract->caution,
+            $contract->mode_paiement,
+            $contract->statut->label(),
+            $contract->observation,
+        ]);
+
+        return ExcelCsvExport::download(
+            'contrats-'.now()->format('Y-m-d').'.csv',
+            ['ID', 'N° contrat', 'Nom du client', 'Prénom du client', 'Immatriculation', 'Marque', 'Modèle', 'Date de départ', 'Heure de départ', 'Date de retour', 'Heure de retour', 'Durée (jours)', 'Km départ', 'Km retour', 'Tarif journalier', 'Total HT', 'TVA', 'Total TTC', 'Avance', 'Reste à payer', 'Caution', 'Mode de paiement', 'Statut', 'Observations'],
+            $rows,
+        );
+    }
+
+    private function filteredContracts(Request $request): Builder
+    {
+        $query = Contract::query()
+            ->with([
+                'client:id,nom,prenom',
+                'vehicle:id,marque,modele,immatriculation',
+            ]);
+
+        if ($request->filled('q')) {
+            $search = $request->q;
+            $query->where(function ($q) use ($search) {
+                $q->where('numero', 'like', "%{$search}%")
+                    ->orWhereHas('client', function ($client) use ($search) {
+                        $client->where('nom', 'like', "%{$search}%")
+                            ->orWhere('prenom', 'like', "%{$search}%");
+                    })
+                    ->orWhereHas('vehicle', function ($vehicle) use ($search) {
+                        $vehicle->where('immatriculation', 'like', "%{$search}%")
+                            ->orWhere('marque', 'like', "%{$search}%")
+                            ->orWhere('modele', 'like', "%{$search}%");
+                    });
+            });
+        }
+
+        if ($request->filled('statut')) {
+            $query->where('statut', $request->statut);
+        }
+
+        return $query->latest();
     }
 
     /**

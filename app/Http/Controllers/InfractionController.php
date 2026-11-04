@@ -7,6 +7,9 @@ use App\Models\Client;
 use App\Models\Contract;
 use App\Models\Infraction;
 use App\Models\Vehicle;
+use App\Support\ExcelCsvExport;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 
@@ -18,7 +21,68 @@ class InfractionController extends Controller
      * Index
      * --------------------------------------------------------------------------
      */
-    public function index(): View
+    public function index(Request $request): View
+    {
+        $infractions = $this->filteredInfractions($request)
+            ->latest()
+            ->paginate(20)
+            ->withQueryString();
+
+        /*
+         * Statistiques
+         */
+        $stats = [
+            'total' => Infraction::count(),
+        ];
+
+        $infractions->getCollection()->each(fn (Infraction $infraction) => $this->calculateInfractionAmounts($infraction));
+
+        return view(
+            'infractions.index',
+            compact('infractions', 'stats')
+        );
+    }
+
+    public function export(Request $request)
+    {
+        $rows = $this->filteredInfractions($request)->latest()->lazy(500)->map(function (Infraction $infraction): array {
+            $this->calculateInfractionAmounts($infraction);
+
+            return [
+                $infraction->id,
+                $infraction->numero_contrat,
+                $infraction->nom,
+                $infraction->prenom,
+                $infraction->cin,
+                $infraction->numero_permis,
+                $infraction->telephone,
+                $infraction->email,
+                $infraction->immatriculation,
+                $infraction->marque,
+                $infraction->modele,
+                $infraction->date_depart?->format('Y-m-d'),
+                $infraction->heure_depart,
+                $infraction->date_retour?->format('Y-m-d'),
+                $infraction->heure_retour,
+                $infraction->calculated_days,
+                $infraction->calculated_daily_rate,
+                $infraction->calculated_total,
+                $infraction->calculated_advance,
+                $infraction->calculated_balance,
+                $infraction->adresse,
+                $infraction->ville,
+                $infraction->code_postal,
+            ];
+        });
+
+        return ExcelCsvExport::download(
+            'infractions-'.now()->format('Y-m-d').'.csv',
+            ['ID', 'N° contrat', 'Nom', 'Prénom', 'CIN', 'N° permis', 'Téléphone', 'E-mail', 'Immatriculation', 'Marque', 'Modèle', 'Date de départ', 'Heure de départ', 'Date de retour', 'Heure de retour', 'Durée (jours)', 'Tarif journalier', 'Total calculé', 'Avance', 'Reste à payer', 'Adresse', 'Ville', 'Code postal'],
+            $rows,
+        );
+    }
+
+    private function filteredInfractions(Request $request): Builder
     {
         $query = Infraction::with([
             'client',
@@ -26,10 +90,7 @@ class InfractionController extends Controller
             'contract',
         ]);
 
-        /*
-         * Recherche
-         */
-        if ($q = request('q')) {
+        if ($q = $request->input('q')) {
             $query->where(function ($query) use ($q) {
                 $query
                     ->where('numero_contrat', 'like', "%{$q}%")
@@ -42,39 +103,22 @@ class InfractionController extends Controller
             });
         }
 
-        /*
-         * Pagination
-         */
-        $infractions = $query
-            ->latest()
-            ->paginate(20)
-            ->withQueryString();
+        return $query;
+    }
 
-        /*
-         * Statistiques
-         */
-        $stats = [
-            'total' => Infraction::count(),
-        ];
-
-        $infractions->getCollection()->each(function (Infraction $infraction) {
-            $infraction->loadMissing(['contract', 'vehicle']);
-            $days = $infraction->date_depart && $infraction->date_retour
-                ? Contract::calculateDays($infraction->date_depart, $infraction->date_retour)
-                : 0;
-            $rate = (float) ($infraction->tarif_jour ?? $infraction->contract?->tarif_jour ?? $infraction->vehicle?->prix_jour ?? 0);
-            $advance = (float) ($infraction->avance ?? $infraction->contract?->avance ?? 0);
-            $infraction->setAttribute('calculated_days', $days);
-            $infraction->setAttribute('calculated_daily_rate', $rate);
-            $infraction->setAttribute('calculated_total', $days * $rate);
-            $infraction->setAttribute('calculated_advance', $advance);
-            $infraction->setAttribute('calculated_balance', max(0, ($days * $rate) - $advance));
-        });
-
-        return view(
-            'infractions.index',
-            compact('infractions', 'stats')
-        );
+    private function calculateInfractionAmounts(Infraction $infraction): void
+    {
+        $infraction->loadMissing(['contract', 'vehicle']);
+        $days = $infraction->date_depart && $infraction->date_retour
+            ? Contract::calculateDays($infraction->date_depart, $infraction->date_retour)
+            : 0;
+        $rate = (float) ($infraction->tarif_jour ?? $infraction->contract?->tarif_jour ?? $infraction->vehicle?->prix_jour ?? 0);
+        $advance = (float) ($infraction->avance ?? $infraction->contract?->avance ?? 0);
+        $infraction->setAttribute('calculated_days', $days);
+        $infraction->setAttribute('calculated_daily_rate', $rate);
+        $infraction->setAttribute('calculated_total', $days * $rate);
+        $infraction->setAttribute('calculated_advance', $advance);
+        $infraction->setAttribute('calculated_balance', max(0, ($days * $rate) - $advance));
     }
 
     /**

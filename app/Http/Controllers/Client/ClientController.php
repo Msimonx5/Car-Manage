@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Client\StoreClientRequest;
 use App\Http\Requests\Client\UpdateClientRequest;
 use App\Models\Client;
+use App\Support\ExcelCsvExport;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 use Illuminate\Http\Request;
@@ -17,9 +19,45 @@ class ClientController extends Controller
      */
     public function index(Request $request)
     {
+        $clients = $this->filteredClients($request)
+            ->paginate(15)
+            ->withQueryString();
+
+        return view('clients.index', compact('clients'));
+    }
+
+    public function export(Request $request)
+    {
+        $rows = $this->filteredClients($request)->lazy(500)->map(static fn (Client $client): array => [
+            $client->id,
+            $client->type,
+            $client->nom,
+            $client->prenom,
+            $client->date_naissance?->format('Y-m-d'),
+            $client->lieu_naissance,
+            $client->cin,
+            $client->nationalite,
+            $client->numero_permis,
+            $client->numero_passeport,
+            $client->telephone,
+            $client->email,
+            $client->adresse,
+            $client->adresse_etranger,
+            $client->ville,
+            $client->code_postal,
+        ]);
+
+        return ExcelCsvExport::download(
+            'clients-'.now()->format('Y-m-d').'.csv',
+            ['ID', 'Type', 'Nom', 'Prénom', 'Date de naissance', 'Lieu de naissance', 'CIN', 'Nationalité', 'N° permis', 'N° passeport', 'Téléphone', 'E-mail', 'Adresse', 'Adresse à l’étranger', 'Ville', 'Code postal'],
+            $rows,
+        );
+    }
+
+    private function filteredClients(Request $request): Builder
+    {
         $query = Client::query();
 
-        // Search by nom, prenom, cin, telephone, or numero_permis
         if ($request->filled('q')) {
             $q = $request->q;
             $query->where(function ($sub) use ($q) {
@@ -32,12 +70,10 @@ class ClientController extends Controller
             });
         }
 
-        // Filter by type
         if ($request->filled('type')) {
             $query->where('type', $request->type);
         }
 
-        // Sorting
         switch ($request->get('sort', 'latest')) {
             case 'nom':
                 $query->orderBy('nom')->orderBy('prenom');
@@ -48,9 +84,7 @@ class ClientController extends Controller
                 break;
         }
 
-        $clients = $query->paginate(15)->withQueryString();
-
-        return view('clients.index', compact('clients'));
+        return $query;
     }
 
     /**

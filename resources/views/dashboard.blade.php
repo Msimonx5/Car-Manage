@@ -225,9 +225,9 @@
       labels: @json($revenueSeries->pluck('label')),
       datasets: [{
         data: @json($revenueSeries->pluck('value')),
-        borderColor: '#4f46e5', backgroundColor: grad, fill: true,
+        borderColor: '#1877f2', backgroundColor: grad, fill: true,
         tension: .4, borderWidth: 2.5, pointRadius: 4, pointBackgroundColor: '#fff',
-        pointBorderColor: '#4f46e5', pointBorderWidth: 2, pointHoverRadius: 6
+        pointBorderColor: '#1877f2', pointBorderWidth: 2, pointHoverRadius: 6
       }]
     },
     options: {
@@ -248,7 +248,7 @@
       labels: ['Disponibles', 'Loués', 'Maintenance', 'Réservés', 'Hors service'],
       datasets: [{
         data: [{{ $availableVehicles }}, {{ $rentedVehicles }}, {{ $maintenanceVehicles }}, {{ $reservedVehicles }}, {{ $outOfServiceVehicles }}],
-        backgroundColor: ['#16a34a', '#4f46e5', '#f59e0b', '#0ea5e9', '#cbd5e1'],
+        backgroundColor: ['#16a34a', '#1877f2', '#f59e0b', '#0ea5e9', '#cbd5e1'],
         borderWidth: 0, cutout: '70%'
       }]
     },

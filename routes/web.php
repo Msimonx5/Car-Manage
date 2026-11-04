@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\Auth\AccountSwitchController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Client\ClientController;
 use App\Http\Controllers\Contract\ContractController;
@@ -28,6 +29,9 @@ Route::get('/', function () {
     : redirect()->route('login');
 });
 
+Route::view('/legal/terms', 'legal.terms')->name('legal.terms');
+Route::view('/legal/privacy', 'legal.privacy')->name('legal.privacy');
+
 /*
 |--------------------------------------------------------------------------
 | Authentification (invités uniquement)
@@ -43,6 +47,8 @@ Route::get('/', function () {
 Route::middleware('auth')->group(function () {
 
     Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
+    Route::post('/account/add', [AccountSwitchController::class, 'add'])->name('account.add');
+    Route::post('/account/switch', [AccountSwitchController::class, 'switch'])->name('account.switch');
 
     Route::get('/home', function () {
         return auth()->user()->can('dashboard.view')
@@ -68,6 +74,7 @@ Route::middleware('auth')->group(function () {
         Route::post('/clients', [ClientController::class, 'store'])->name('clients.store');
     });
     Route::middleware('can:clients.view')->group(function () {
+        Route::get('/clients/export', [ClientController::class, 'export'])->name('clients.export');
         Route::get('/clients', [ClientController::class, 'index'])->name('clients.index');
         Route::get('/clients/{client}', [ClientController::class, 'show'])->name('clients.show');
     });
@@ -88,6 +95,7 @@ Route::middleware('auth')->group(function () {
         Route::post('/vehicles', [VehicleController::class, 'store'])->name('vehicles.store');
     });
     Route::middleware('can:vehicles.view')->group(function () {
+        Route::get('/vehicles/export', [VehicleController::class, 'export'])->name('vehicles.export');
         Route::get('/vehicles', [VehicleController::class, 'index'])->name('vehicles.index');
         Route::get('/vehicles/{vehicle}', [VehicleController::class, 'show'])->name('vehicles.show');
     });
@@ -120,6 +128,7 @@ Route::middleware('auth')->group(function () {
 
     Route::middleware('can:view-contracts')->group(function () {
 
+        Route::get('/contracts/export', [ContractController::class, 'export'])->name('contracts.export');
         Route::resource('contracts', ContractController::class)->only(['index', 'show']);
 
         Route::prefix('contracts/notifications')
@@ -145,6 +154,7 @@ Route::middleware('auth')->group(function () {
     Route::middleware('can:manage-infractions')->get('/infractions/create', [InfractionController::class, 'create'])->name('infractions.create');
 
     Route::middleware('can:view-infractions')->group(function () {
+        Route::get('/infractions/export', [InfractionController::class, 'export'])->name('infractions.export');
         Route::get('/infractions', [InfractionController::class, 'index'])->name('infractions.index');
         Route::get('/infractions/{infraction}', [InfractionController::class, 'show'])->name('infractions.show');
         Route::get('/infractions/{infraction}/pdf', [InfractionController::class, 'pdf'])->name('infractions.pdf');

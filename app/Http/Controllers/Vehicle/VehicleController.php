@@ -7,6 +7,8 @@ use App\Http\Requests\Vehicle\StoreVehicleRequest;
 use App\Http\Requests\Vehicle\UpdateVehicleRequest;
 use App\Models\Contract;
 use App\Models\Vehicle;
+use App\Support\ExcelCsvExport;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
@@ -23,73 +25,7 @@ class VehicleController extends Controller
     {
         Contract::releaseExpired();
 
-        $query = Vehicle::query();
-
-        /*
-        |--------------------------------------------------------------------------
-        | Recherche
-        |--------------------------------------------------------------------------
-        */
-
-        if ($request->filled('q')) {
-
-            $search = $request->q;
-
-            $query->where(function ($q) use ($search) {
-
-                $q->where('marque', 'like', "%{$search}%")
-                  ->orWhere('modele', 'like', "%{$search}%")
-                  ->orWhere('immatriculation', 'like', "%{$search}%");
-
-            });
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | Filtre statut
-        |--------------------------------------------------------------------------
-        */
-
-        if ($request->filled('statut')) {
-
-            $query->where('statut', $request->statut);
-
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | Tri
-        |--------------------------------------------------------------------------
-        */
-
-        $sort = $request->get('sort', 'latest');
-
-        switch ($sort) {
-
-            case 'marque':
-                $query->orderBy('marque');
-                break;
-
-            case 'kilometrage':
-                $query->orderByDesc('kilometrage');
-                break;
-
-            case 'prix':
-                $query->orderBy('prix_jour');
-                break;
-
-            default:
-                $query->latest();
-                break;
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | Pagination
-        |--------------------------------------------------------------------------
-        */
-
-        $vehicles = $query
+        $vehicles = $this->filteredVehicles($request)
             ->paginate(10)
             ->withQueryString();
 
@@ -148,6 +84,76 @@ class VehicleController extends Controller
                 'stats'
             )
         );
+    }
+
+    public function export(Request $request)
+    {
+        Contract::releaseExpired();
+
+        $rows = $this->filteredVehicles($request)->lazy(500)->map(static fn (Vehicle $vehicle): array => [
+            $vehicle->id,
+            $vehicle->immatriculation,
+            $vehicle->marque,
+            $vehicle->modele,
+            $vehicle->annee,
+            $vehicle->couleur,
+            $vehicle->carburant,
+            $vehicle->boite_vitesse,
+            $vehicle->nombre_places,
+            $vehicle->numero_chassis,
+            $vehicle->numero_moteur,
+            $vehicle->prix_jour,
+            $vehicle->caution,
+            $vehicle->kilometrage,
+            $vehicle->derniere_vidange_km,
+            $vehicle->derniere_vidange_date?->format('Y-m-d'),
+            $vehicle->prochaine_vidange_km,
+            $vehicle->assurance_expiration?->format('Y-m-d'),
+            $vehicle->visite_technique?->format('Y-m-d'),
+            $vehicle->statut->label(),
+            $vehicle->observation,
+        ]);
+
+        return ExcelCsvExport::download(
+            'vehicules-'.now()->format('Y-m-d').'.csv',
+            ['ID', 'Immatriculation', 'Marque', 'Modèle', 'Année', 'Couleur', 'Carburant', 'Boîte de vitesse', 'Places', 'N° châssis', 'N° moteur', 'Prix par jour', 'Caution', 'Kilométrage', 'Dernière vidange (km)', 'Dernière vidange (date)', 'Prochaine vidange (km)', 'Expiration assurance', 'Visite technique', 'Statut', 'Observations'],
+            $rows,
+        );
+    }
+
+    private function filteredVehicles(Request $request): Builder
+    {
+        $query = Vehicle::query();
+
+        if ($request->filled('q')) {
+            $search = $request->q;
+            $query->where(function ($q) use ($search) {
+                $q->where('marque', 'like', "%{$search}%")
+                    ->orWhere('modele', 'like', "%{$search}%")
+                    ->orWhere('immatriculation', 'like', "%{$search}%");
+            });
+        }
+
+        if ($request->filled('statut')) {
+            $query->where('statut', $request->statut);
+        }
+
+        switch ($request->get('sort', 'latest')) {
+            case 'marque':
+                $query->orderBy('marque');
+                break;
+            case 'kilometrage':
+                $query->orderByDesc('kilometrage');
+                break;
+            case 'prix':
+                $query->orderBy('prix_jour');
+                break;
+            default:
+                $query->latest();
+                break;
+        }
+
+        return $query;
     }
 
     /**

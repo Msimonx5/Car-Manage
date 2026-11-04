@@ -47,6 +47,16 @@
         </div>
     </div>
 
+    <div class="form-check mb-3">
+        <input class="form-check-input" type="checkbox" name="legal_accepted" value="1" id="legal-accepted"
+               @checked(old('legal_accepted')) required>
+        <label class="form-check-label" for="legal-accepted">
+            J’ai lu et j’accepte les <a href="{{ route('legal.terms') }}" target="_blank" rel="noopener">conditions d’utilisation</a>
+            et la <a href="{{ route('legal.privacy') }}" target="_blank" rel="noopener">politique de confidentialité</a>.
+        </label>
+        @error('legal_accepted')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
+    </div>
+
     <button type="submit" class="btn-brand"><i class="bi bi-box-arrow-in-right"></i> Se connecter</button>
 </form>
 

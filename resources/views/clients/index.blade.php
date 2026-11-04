@@ -11,7 +11,12 @@
         <h2>Clients</h2>
         <p>{{ $clients->total() }} client(s) enregistré(s)</p>
     </div>
-    <a href="{{ route('clients.create') }}" class="btn-brand"><i class="bi bi-plus-lg"></i> Nouveau client</a>
+    <div class="d-flex flex-wrap gap-2">
+        <a href="{{ route('clients.export', request()->query()) }}" class="btn-soft" title="Télécharger tous les résultats filtrés au format CSV compatible Excel">
+            <i class="bi bi-file-earmark-spreadsheet"></i> Exporter Excel
+        </a>
+        <a href="{{ route('clients.create') }}" class="btn-brand"><i class="bi bi-plus-lg"></i> Nouveau client</a>
+    </div>
 </div>
 
 @if(session('success'))

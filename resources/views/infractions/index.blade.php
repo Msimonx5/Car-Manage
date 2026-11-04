@@ -13,9 +13,14 @@
         <h2>Infractions</h2>
         <p>{{ $stats['total'] }} infraction(s) au total</p>
     </div>
-    @can('manage-infractions')<a href="{{ route('infractions.create') }}" class="btn-brand">
-        <i class="bi bi-plus-lg"></i> Nouvelle infraction
-    </a>@endcan
+    <div class="d-flex flex-wrap gap-2">
+        <a href="{{ route('infractions.export', request()->query()) }}" class="btn-soft" title="Télécharger tous les résultats filtrés au format CSV compatible Excel">
+            <i class="bi bi-file-earmark-spreadsheet"></i> Exporter Excel
+        </a>
+        @can('manage-infractions')<a href="{{ route('infractions.create') }}" class="btn-brand">
+            <i class="bi bi-plus-lg"></i> Nouvelle infraction
+        </a>@endcan
+    </div>
 </div>
 
 @if(session('success'))

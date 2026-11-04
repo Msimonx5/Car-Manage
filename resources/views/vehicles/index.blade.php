@@ -23,7 +23,12 @@
         <h2>Véhicules</h2>
         <p>Gestion de la flotte — {{ $stats['total'] }} véhicule(s)</p>
     </div>
-    <a href="{{ route('vehicles.create') }}" class="btn-brand"><i class="bi bi-plus-lg"></i> Nouveau véhicule</a>
+    <div class="d-flex flex-wrap gap-2">
+        <a href="{{ route('vehicles.export', request()->query()) }}" class="btn-soft" title="Télécharger tous les résultats filtrés au format CSV compatible Excel">
+            <i class="bi bi-file-earmark-spreadsheet"></i> Exporter Excel
+        </a>
+        <a href="{{ route('vehicles.create') }}" class="btn-brand"><i class="bi bi-plus-lg"></i> Nouveau véhicule</a>
+    </div>
 </div>
 
 @include('components.alerts.success')
